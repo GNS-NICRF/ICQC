@@ -8,19 +8,19 @@
 #'
 #' @param filename full filename of the calibration sequence .xls file.
 #'
-#' @return A character string 
+#' @return A character string
 #'
 #' @noRd
-#' 
+#'
 calib_info_forYAML <- function(filename){
-  file_splits <- strsplit(trim_path_int(list.files(paste0(here::here(),"/data-raw/test-data-2025-10-16/"), full.names = T)[1]),"_|\\.")[[1]]
+  file_splits <- strsplit(trim_path_int(filename),"_|\\.")[[1]]
   ret_label = paste0(file_splits[1]," ",file_splits[2]," ",file_splits[3],": ",file_splits[5]," ",file_splits[6]," & ",file_splits[7]," ",file_splits[8])
   ret_label
 }
 
 #' Trim a filepath
 #'
-#' @description Isolate a file or folder name from a file path. Assumes windows 
+#' @description Isolate a file or folder name from a file path. Assumes windows
 #' file tree conventions (i.e., forward slash "/")
 #'
 #' @author Matt Harris
@@ -30,7 +30,7 @@ calib_info_forYAML <- function(filename){
 #' @return A vector containing the supplied filenames, with the paths removed.
 #'
 #' @noRd
-#' 
+#'
 trim_path_int <- function(filenames){
   if(length(filenames) > 1){
     it_list <- vector(mode = "list", length = length(filenames))

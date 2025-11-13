@@ -1,6 +1,6 @@
 ---
 params: 
-  cal_target: !r list.files(paste0(here::here(),"/data-raw/test-data-2025-10-16/"), full.names = T)[1]
+  cal_target: !r system.file("data-raw", "20250909_BLIZ_SOUTH_Calibration_Anion_44_Cation_38.xls", package = "ICQC")
   unts: !r as.character("sec")
 title: "ICF IC Calibration Report (v1)"
 author: "`r calib_info_forYAML(params$cal_target)`"
