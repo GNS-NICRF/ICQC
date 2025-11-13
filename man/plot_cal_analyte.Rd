@@ -24,7 +24,7 @@ plot_cal_analyte(
 
 \item{regline_colour}{character; colour of regression line}
 
-\item{inset}{one of 'beside', 'inside' or NULL to plot the lowest 10% of values as a separate plot beside or inside the main plot, or not at all.}
+\item{inset}{one of "beside", "inside" or NULL to plot the lowest 10 percent of values as a separate plot beside or inside the main plot, or not at all.}
 }
 \value{
 a cowplot plotting object containing one or more ggplot2 plotting objects

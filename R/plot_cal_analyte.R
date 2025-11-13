@@ -2,18 +2,17 @@
 #'
 #' @description Plot calibration for a single ion species.
 #'
-#' 
 #' @param parsed_calibration output from \code{parse_calibration()}.
 #' @param analyte_name string matching an ion in the target calibration, e.g., "MSA".
 #' @param axlim_offset_pct numeric; percentage the axes will be offset from the maximum and minimum value.
-#' @param point_colour character; fill colour of points in calibration scatterplot. 
+#' @param point_colour character; fill colour of points in calibration scatterplot.
 #' @param regline_colour character; colour of regression line
-#' @param inset one of 'beside', 'inside' or NULL to plot the lowest 10% of values as a separate plot beside or inside the main plot, or not at all.
+#' @param inset one of "beside", "inside" or NULL to plot the lowest 10 percent of values as a separate plot beside or inside the main plot, or not at all.
 #'
 #' @return a cowplot plotting object containing one or more ggplot2 plotting objects
 #'
 #' @author Matt Harris
-#' 
+#'
 #' @importFrom magrittr %>%
 #' @importFrom dplyr select
 #' @importFrom dplyr mutate
@@ -25,7 +24,7 @@
 #' @importFrom ggtext geom_richtext
 #'
 #' @export
-#' 
+#'
 plot_cal_analyte <- function(parsed_calibration,
                              analyte_name,
                              axlim_offset_pct = 1,
@@ -53,10 +52,10 @@ plot_cal_analyte <- function(parsed_calibration,
   levels_data <- parsed_calibration$Cal_Levels %>%
     'colnames<-'(c(gsub("Amount", "Weight", colnames(.)))) %>%
     select(Injection_Number,Level,contains(analyte_name)) %>%
-    mutate(across(everything(), ~as.numeric(.))) 
+    mutate(across(everything(), ~as.numeric(.)))
   analyte_data <- parsed_calibration$Data %>%
     select(Injection_Number,Level, contains(analyte_name)) %>%
-    mutate(across(everything(), ~as.numeric(.))) %>% 
+    mutate(across(everything(), ~as.numeric(.))) %>%
     left_join(levels_data) %>% # join
     'colnames<-'(c(colnames(.)[c(1,2)], "Amount","Area","Weight"))
   ## Obtain calibration curve info
@@ -88,70 +87,70 @@ plot_cal_analyte <- function(parsed_calibration,
     # Replace all excessive whitespace
   }
   model_regression <- str_replace_all(model_regression,"\\s+\\*\\s+","*")
-  
+
   # Get text size
   tsize <- theme_constants()
   ## Plots!
-  main_plot <- ggplot() + 
+  main_plot <- ggplot() +
     geom_line(data = analyte_data, aes(x = Weight, y = predicted_y)) +
     analyte_reg$geom +
     # geom_smooth(data = fit_data, aes(x = x, y = y), formula = y ~ poly(x, 3, raw = TRUE), method = 'lm', se = T) +
-    geom_point(data = analyte_data, aes(x = Weight, y = Area), size = 2, shape = 21, fill = point_colour, colour = 'black') + 
+    geom_point(data = analyte_data, aes(x = Weight, y = Area), size = 2, shape = 21, fill = point_colour, colour = 'black') +
     labs(x = "Level Weight (ppb)", y = "Area &micro;S*min") +
-    scale_x_continuous(expand = c(0,0), 
+    scale_x_continuous(expand = c(0,0),
                        limits = c(0,(max_x + ((max_x - min_x)/100)*axlim_offset_pct))) +
-    scale_y_continuous(expand = c(0,0), 
+    scale_y_continuous(expand = c(0,0),
                        limits = c(0,(max_y + ((max_y - min_y)/100)*axlim_offset_pct))) +
     theme_calplot(tsize$textsize_pdf)# +
   # geom_richtext(aes(x = (max_x - min_x)/100*15, y = (max_y - min_y)/100*5, label = model_regression), hjust = 0, fill = NA, label.size = NA, size = tsize$textsize_vvsmall/.pt)# +
-  # geom_richtext(aes(x = (max_x - min_x)/100*80, y = (max_x - min_x)/100*10, label = fit_data), hjust = 0, fill = NA, label.size = NA, size = 6) 
-  
+  # geom_richtext(aes(x = (max_x - min_x)/100*80, y = (max_x - min_x)/100*10, label = fit_data), hjust = 0, fill = NA, label.size = NA, size = 6)
+
   # Make inset
-  inset_plot <- ggplot() + 
+  inset_plot <- ggplot() +
     geom_line(data = analyte_data, aes(x = Weight, y = predicted_y)) +
     analyte_reg$geom +
     # geom_smooth(data = fit_data, aes(x = x, y = y), formula = y ~ poly(x, 3, raw = TRUE), method = 'lm', se = T) +
-    geom_point(data = analyte_data, aes(x = Weight, y = Area), size = 2, shape = 21, fill = point_colour, colour = 'black') + 
+    geom_point(data = analyte_data, aes(x = Weight, y = Area), size = 2, shape = 21, fill = point_colour, colour = 'black') +
     labs(x = "Level Weight (ppb)", y = "Area &micro;S*min") +
-    scale_x_continuous(expand = c(0,0), 
+    scale_x_continuous(expand = c(0,0),
                        limits = c(-100,(max_x + ((max_x - min_x)/100)*axlim_offset_pct))) +
-    scale_y_continuous(expand = c(0,0), 
+    scale_y_continuous(expand = c(0,0),
                        limits = c(-100,(max_y + ((max_y - min_y)/100)*axlim_offset_pct))) +
     # theme_calplot(tsize$textsize_vvsmall) +
     theme(panel.background = element_rect(fill = 'white')) +
     coord_cartesian(xlim = c(0,(max_x - min_x)/100*10),
                     ylim = c(0,(max_y - min_y)/100*10))
-  
+
   # Make simple plot for regression and labels
-  
+
   if(inset == 'beside'){
     # Information
-    # reg_info <- ggplot() + 
+    # reg_info <- ggplot() +
     #   scale_x_continuous(expand = c(0,0), limits = c(0,(max_x - min_x)/100*50)) +
     #   scale_y_continuous(expand = c(0,0),  limits = c(0,(max_y - min_y)/100*10)) +
     #   # Regression
-    #   geom_richtext(aes(x = (max_x - min_x)/100*20.5, 
-    #                     y = (max_y - min_y)/100*7.5, label = model_regression), hjust = 0, fill = NA, label.size = NA, size = tsize$textsize_small_pdf/.pt) + 
-    #   geom_richtext(aes(x = (max_x - min_x)/100*20.5, 
-    #                     y = (max_y - min_y)/100*2.5, label = paste0("R<sup>2</sup> = ", round(summary(analyte_reg)$r.squared,5))), hjust = 0, fill = NA, label.size = NA, size = tsize$textsize_small_pdf/.pt) + 
+    #   geom_richtext(aes(x = (max_x - min_x)/100*20.5,
+    #                     y = (max_y - min_y)/100*7.5, label = model_regression), hjust = 0, fill = NA, label.size = NA, size = tsize$textsize_small_pdf/.pt) +
+    #   geom_richtext(aes(x = (max_x - min_x)/100*20.5,
+    #                     y = (max_y - min_y)/100*2.5, label = paste0("R<sup>2</sup> = ", round(summary(analyte_reg)$r.squared,5))), hjust = 0, fill = NA, label.size = NA, size = tsize$textsize_small_pdf/.pt) +
     #   # Analyte and calibration info
-    #   geom_richtext(aes(x = (max_x - min_x)/100*0.5, 
-    #                     y = (max_y - min_y)/100*7.5), 
-    #                 label = paste0(analyte_name,", n = ",length(!is.na(analyte_data$Area)), ", ", parsed_calibration$Cal_Curves$Cal_Type[which(parsed_calibration$Cal_Curves$Name == analyte_name)]), 
-    #                 hjust = 0, fill = NA, label.size = NA, size = tsize$textsize_small_pdf/.pt) + 
-    #   geom_richtext(aes(x = (max_x - min_x)/100*0.5, 
-    #                     y = (max_y - min_y)/100*2.5), 
-    #                 label = paste0(parsed_calibration$Instrument,", ",paste0(parsed_calibration$Ion_Type," ",parsed_calibration$Number),", ", parsed_calibration$Date), 
-    #                 hjust = 0, fill = NA, label.size = NA, size = tsize$textsize_small_pdf/.pt) + 
+    #   geom_richtext(aes(x = (max_x - min_x)/100*0.5,
+    #                     y = (max_y - min_y)/100*7.5),
+    #                 label = paste0(analyte_name,", n = ",length(!is.na(analyte_data$Area)), ", ", parsed_calibration$Cal_Curves$Cal_Type[which(parsed_calibration$Cal_Curves$Name == analyte_name)]),
+    #                 hjust = 0, fill = NA, label.size = NA, size = tsize$textsize_small_pdf/.pt) +
+    #   geom_richtext(aes(x = (max_x - min_x)/100*0.5,
+    #                     y = (max_y - min_y)/100*2.5),
+    #                 label = paste0(parsed_calibration$Instrument,", ",paste0(parsed_calibration$Ion_Type," ",parsed_calibration$Number),", ", parsed_calibration$Date),
+    #                 hjust = 0, fill = NA, label.size = NA, size = tsize$textsize_small_pdf/.pt) +
     #   geom_blank() +
     #   theme_blank
-    # Update plots 
-    inset_plot <- inset_plot + 
-      theme_calplot(tsize$textsize_pdf) 
-    main_plot <- main_plot + 
+    # Update plots
+    inset_plot <- inset_plot +
+      theme_calplot(tsize$textsize_pdf)
+    main_plot <- main_plot +
       geom_rect(aes(xmin = 0, xmax = (max_x - min_x)/100*10, ymin = 0, ymax = (max_y - min_y)/100*10), fill = NA, alpha = 0.5, colour = 'black')# +
       # annotate(geom = 'text', label = 'P2', fontface = 2,
-      #          x = (max_x - min_x)/100*3, y = (max_y - min_y)/100*8) 
+      #          x = (max_x - min_x)/100*3, y = (max_y - min_y)/100*8)
     # Combine
     # top_plot <- reg_info
     combined_plot <- plot_grid(main_plot,
@@ -163,30 +162,30 @@ plot_cal_analyte <- function(parsed_calibration,
     #                            rel_heights = c(0.15,1))
   } else if(inset == 'inside'){
     # Information
-    # reg_info <- ggplot() + 
+    # reg_info <- ggplot() +
     #   scale_x_continuous(expand = c(0,0), limits = c(0,(max_x - min_x)/100*50)) +
     #   scale_y_continuous(expand = c(0,0),  limits = c(0,(max_y - min_y)/100*20)) +
     #   # Regression
-    #   geom_richtext(aes(x = (max_x - min_x)/100*0.5, 
-    #                     y = (max_y - min_y)/100*8, label = model_regression), hjust = 0, fill = NA, label.size = NA, size = tsize$textsize_small_pdf/.pt) + 
-    #   geom_richtext(aes(x = (max_x - min_x)/100*0.5, 
-    #                     y = (max_y - min_y)/100*4, label = paste0("R<sup>2</sup> = ", round(summary(analyte_reg)$r.squared,5))), hjust = 0, fill = NA, label.size = NA, size = tsize$textsize_small_pdf/.pt) + 
+    #   geom_richtext(aes(x = (max_x - min_x)/100*0.5,
+    #                     y = (max_y - min_y)/100*8, label = model_regression), hjust = 0, fill = NA, label.size = NA, size = tsize$textsize_small_pdf/.pt) +
+    #   geom_richtext(aes(x = (max_x - min_x)/100*0.5,
+    #                     y = (max_y - min_y)/100*4, label = paste0("R<sup>2</sup> = ", round(summary(analyte_reg)$r.squared,5))), hjust = 0, fill = NA, label.size = NA, size = tsize$textsize_small_pdf/.pt) +
     #   # Analyte and calibration info
-    #   geom_richtext(aes(x = (max_x - min_x)/100*0.5, 
-    #                     y = (max_y - min_y)/100*16), 
-    #                 label = paste0(analyte_name,", n = ",length(!is.na(analyte_data$Area)), ", ", parsed_calibration$Cal_Curves$Cal_Type[which(parsed_calibration$Cal_Curves$Name == analyte_name)]), 
-    #                 hjust = 0, fill = NA, label.size = NA, size = tsize$textsize_small_pdf/.pt) + 
-    #   geom_richtext(aes(x = (max_x - min_x)/100*0.5, 
-    #                     y = (max_y - min_y)/100*12), 
-    #                 label = paste0(parsed_calibration$Instrument,", ",paste0(parsed_calibration$Ion_Type," ",parsed_calibration$Number),", ", parsed_calibration$Date), 
-    #                 hjust = 0, fill = NA, label.size = NA, size = tsize$textsize_small_pdf/.pt) + 
+    #   geom_richtext(aes(x = (max_x - min_x)/100*0.5,
+    #                     y = (max_y - min_y)/100*16),
+    #                 label = paste0(analyte_name,", n = ",length(!is.na(analyte_data$Area)), ", ", parsed_calibration$Cal_Curves$Cal_Type[which(parsed_calibration$Cal_Curves$Name == analyte_name)]),
+    #                 hjust = 0, fill = NA, label.size = NA, size = tsize$textsize_small_pdf/.pt) +
+    #   geom_richtext(aes(x = (max_x - min_x)/100*0.5,
+    #                     y = (max_y - min_y)/100*12),
+    #                 label = paste0(parsed_calibration$Instrument,", ",paste0(parsed_calibration$Ion_Type," ",parsed_calibration$Number),", ", parsed_calibration$Date),
+    #                 hjust = 0, fill = NA, label.size = NA, size = tsize$textsize_small_pdf/.pt) +
     #   geom_blank() +
     #   theme_blank
     # Update plots
-    main_plot <- main_plot + 
+    main_plot <- main_plot +
       geom_rect(aes(xmin = 0, xmax = (max_x - min_x)/100*10, ymin = 0, ymax = (max_y - min_y)/100*10), fill = NA, alpha = 0.5, colour = 'black') +
       annotate(geom = 'text', label = 'inset', fontface = 2,
-               x = (max_x - min_x)/100*15, y = (max_y - min_y)/100*5) 
+               x = (max_x - min_x)/100*15, y = (max_y - min_y)/100*5)
     inset_plot <- inset_plot +
       theme_calplot(tsize$textsize_small_pdf) +
       theme(axis.title.x = element_blank(),
