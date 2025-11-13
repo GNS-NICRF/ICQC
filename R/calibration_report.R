@@ -33,7 +33,7 @@ calibration_report <- function(filepath,
     report_filename <- paste0(strsplit(trim_path_int(filepath),"[.]")[[1]][1],"_Report")
   }
   render(input = system.file("rmd", "calibration-report.Rmd", package = "ICQC"),
-         utput_file = report_filename,
+         output_file = report_filename,
          output_dir = output_folder,
          params = list(cal_target = filepath, unts = "sec"),
          envir = new.env())
