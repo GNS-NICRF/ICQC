@@ -1,0 +1,180 @@
+---
+params: 
+  cal_target: !r list.files(paste0(here::here(),"/data-raw/test-data-2025-10-16/"), full.names = T)[1]
+  unts: !r as.character("sec")
+title: "ICF IC Calibration Report (v1)"
+author: "`r calib_info_forYAML(params$cal_target)`"
+date: "Generated `r round(Sys.time(), units = params$unts)` by `r Sys.info()[['user']]` (`r Sys.info()[['nodename']]`)"
+output: 
+  pdf_document:
+    extra_dependencies: ["float"]
+    toc: true
+    toc_depth: 3
+    dev: png
+---
+
+<!-- THIS REPORT REQUIRES TINYTEX TO WORK. Install using tinytex::install_tinytex() -->
+
+This is an automatically generated report for the following calibration sequence: 
+
+`r trim_path_int(params$cal_target)`
+
+```{r setup, echo = FALSE, results = FALSE, message = FALSE}
+
+# This chunk sets up all others. 
+# Load packages, import global data, etc.
+
+# Check if pacman is installed. If not, install it.
+if(!require("pacman", character.only = TRUE)){install.packages("pacman")}
+
+# Load pacman and then p_load (install if needed) other dependencies.
+pacman::p_load(rmarkdown,knitr,ggtext,tinytex, stringi, stringr,
+               tidyverse, openxlsx, here, cowplot, ggpmisc, rlist, readxl)
+
+# Set chunk options, including centered figures and echo on by default.
+knitr::opts_chunk$set(echo = FALSE, 
+                      fig.align="center", 
+                      fig.pos = "H", 
+                      out.extra = "",
+                      comment = "")
+
+# Get functions
+invisible(lapply(list.files(path = paste0(here(),"/R/"), full.names = T), source))
+
+# Report params
+# Parameterised reporting per https://bookdown.org/yihui/rmarkdown-cookbook/parameterized-reports.html
+
+
+
+```
+  
+```{r import-calibration-data, results = 'hide', warning = FALSE, echo = FALSE, message = FALSE}
+
+# Import data from a single calibration
+## Test vars
+# cal_target <- list.files(data_dir_raw, full.names = T)[1]
+# params = list(cal_target = cal_target)
+
+cal_Anions <- parse_sequence(filepath = params$cal_target, ion_type = "Anion")
+cal_Cations <- parse_sequence(filepath = params$cal_target, ion_type = "Cation")
+
+
+```
+
+\pagebreak
+
+## Anions
+
+```{r mass-plotting-anions, warning = FALSE, echo = FALSE, message = FALSE, fig.align='left', dpi = 300, fig.width = 6, fig.height = 6 * 6/12}
+
+# Get ions
+ion_sp <- unique(str_remove_all(
+  colnames(cal_Anions$Data[,grep("Amount",colnames(cal_Anions$Data)):ncol(cal_Anions$Data)]),
+  "_Amount|_Area"))
+# Loop
+plots <- vector('list', length(ion_sp))
+for(i in seq_along(ion_sp)){
+  # message(ion_sp[i])
+  ## Get reg info
+  analyte_reg <- get_cal_regression(cal_Anions, ion_sp[i])
+  ## This block formats the regression text. All to turn ^3 into a properly displayed exponent
+  model_regression = cal_Anions$Cal_Curves$Cal_Fn[which(cal_Anions$Cal_Curves$Name == ion_sp[i])]
+  # find and replace exponents
+  reg_exp_ind <- stringi::stri_locate_all_fixed(model_regression, pattern = "^")[[1]][,1] %>% as.numeric()
+  if(all(!is.na(reg_exp_ind))){
+    reg_exp_rep <- sapply(reg_exp_ind, function(x){substr(model_regression,x,x+1)}) %>%
+      str_replace_all(.,c("\\^2" = "\u00B2","\\^3" = "\u00B3"))  #%>%
+      # paste0(.,"</sup>")
+    # Split da string
+    for(r in seq_along(reg_exp_ind)){
+      reg_exp_ind <- stri_locate_all_fixed(model_regression, pattern = "^")[[1]][,1] %>% as.numeric()
+      this_split <- strsplit(model_regression,substr(model_regression,reg_exp_ind,reg_exp_ind+1), fixed = T)
+      model_regression <- paste0(this_split[[1]][1],reg_exp_rep[r],this_split[[1]][2])
+    }
+    # Replace all excessive whitespace
+  }
+  model_regression <- str_replace_all(model_regression,"\\s+\\*\\s+","*")
+  ## Print info using cat
+  analyte_data_nowgt <- cal_Anions$Data %>%
+    select(Injection_Number,Level, contains(ion_sp[i])) %>%
+    mutate(across(everything(), ~as.numeric(.))) %>% 
+    # left_join(levels_data) %>% # join
+    'colnames<-'(c(colnames(.)[c(1,2)], "Amount","Area"))#,"Weight"))
+  ## Print info
+  cat(paste0("--------------------------------------", " \n"))
+  cat(paste0(ion_sp[i],", valid n = ",length(which(!is.na(analyte_data_nowgt$Area))), ", ",
+             cal_Anions$Cal_Curves$Cal_Type[which(cal_Anions$Cal_Curves$Name == ion_sp[i])]," \n"))
+  cat(paste0(cal_Anions$Instrument,
+         ", ",
+         paste0(cal_Anions$Ion_Type," ",cal_Anions$Number),
+         ", ", 
+         cal_Anions$Date," \n"))
+  cat(model_regression," \n")
+  cat(paste0("R\u00B2 = ", round(summary(analyte_reg)$r.squared,5)," \n"))
+  # Generate plots
+  plots[[i]] <- plot_cal_analyte(parsed_calibration = cal_Anions,
+                   analyte_name = ion_sp[i])
+  print(plots[[i]])
+}
+
+```
+\pagebreak
+ 
+## Cations
+
+```{r mass-plotting-cations, warning = FALSE, echo = FALSE, message = FALSE, dpi = 300, fig.align='left', fig.width = 6, fig.height = 6 * 6/12}
+
+# Get ions
+ion_sp <- unique(str_remove_all(
+  colnames(cal_Cations$Data[,grep("Amount",colnames(cal_Cations$Data)):ncol(cal_Cations$Data)]),
+  "_Amount|_Area"))
+# Loop
+plots <- vector('list', length(ion_sp))
+for(i in seq_along(ion_sp)){
+  # message(ion_sp[i])
+  ## Get reg info
+  analyte_reg <- get_cal_regression(cal_Cations, ion_sp[i])
+  ## This block formats the regression text. All to turn ^3 into a properly displayed exponent
+  model_regression = cal_Cations$Cal_Curves$Cal_Fn[which(cal_Cations$Cal_Curves$Name == ion_sp[i])]
+  # find and replace exponents
+  reg_exp_ind <- stringi::stri_locate_all_fixed(model_regression, pattern = "^")[[1]][,1] %>% as.numeric()
+  if(all(!is.na(reg_exp_ind))){
+    reg_exp_rep <- sapply(reg_exp_ind, function(x){substr(model_regression,x,x+1)}) %>%
+      str_replace_all(.,c("\\^2" = "\u00B2","\\^3" = "\u00B3"))  #%>%
+      # paste0(.,"</sup>")
+    # Split da string
+    for(r in seq_along(reg_exp_ind)){
+      reg_exp_ind <- stri_locate_all_fixed(model_regression, pattern = "^")[[1]][,1] %>% as.numeric()
+      this_split <- strsplit(model_regression,substr(model_regression,reg_exp_ind,reg_exp_ind+1), fixed = T)
+      model_regression <- paste0(this_split[[1]][1],reg_exp_rep[r],this_split[[1]][2])
+    }
+    # Replace all excessive whitespace
+  }
+  model_regression <- str_replace_all(model_regression,"\\s+\\*\\s+","*")
+  ## Print info using cat
+  analyte_data_nowgt <- cal_Cations$Data %>%
+    select(Injection_Number,Level, contains(ion_sp[i])) %>%
+    mutate(across(everything(), ~as.numeric(.))) %>% 
+    # left_join(levels_data) %>% # join
+    'colnames<-'(c(colnames(.)[c(1,2)], "Amount","Area"))#,"Weight"))
+  ## Print info
+  cat(paste0("--------------------------------------", " \n"))
+  cat(paste0(ion_sp[i],", valid n = ",length(which(!is.na(analyte_data_nowgt$Area))), ", ",
+             cal_Cations$Cal_Curves$Cal_Type[which(cal_Cations$Cal_Curves$Name == ion_sp[i])]," \n"))
+  cat(paste0(cal_Cations$Instrument,
+         ", ",
+         paste0(cal_Cations$Ion_Type," ",cal_Cations$Number),
+         ", ", 
+         cal_Cations$Date," \n"))
+  cat(model_regression," \n")
+  cat(paste0("R\u00B2 = ", round(summary(analyte_reg)$r.squared,5)," \n"))
+  # Generate plots
+  plots[[i]] <- plot_cal_analyte(parsed_calibration = cal_Cations,
+                   analyte_name = ion_sp[i])
+  print(plots[[i]])
+}
+
+```
+ 
+ 
+
