@@ -34,10 +34,11 @@ This package does one thing at present:
 
 Wishlist:
 
-1.  Determine optimum calibration point \# from a series of supplied ion
-    calibrations.
-2.  QC tracking through time, within and between calibrations and QC
-    versions.
-3.  Adaptive export of calibrated sample sequence data based on
-    calibration tweaking (e.g., curve optimisation at low
-    concentrations).
+- Supply a folder to calibration_report(), and automatically detect &
+  generate reports for all calibration .xls files therein.
+- Determine optimum calibration point \# from a series of supplied ion
+  calibrations.
+- QC tracking through time, within and between calibrations and QC
+  versions.
+- Adaptive export of calibrated sample sequence data based on
+  calibration tweaking (e.g., curve optimisation at low concentrations).
