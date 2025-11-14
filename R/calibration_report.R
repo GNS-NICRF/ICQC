@@ -15,6 +15,7 @@
 #' calibration_report(list.files(directory, full.names = TRUE)[1], output_folder = "path/to/output/folder/")
 #'
 #' @importFrom rmarkdown render
+#' @importFrom here here
 #'
 #' @export
 #'
@@ -28,11 +29,17 @@ calibration_report <- function(filepath,
   ## Find the .Rmd file
   # report_rmd <- system.file("rmd", "calibration-report.Rmd", package = "ICQC")
   # report_rmd <- paste0(here::here(),"/report-templates/calibration-report.Rmd")
+  # Check whether this is the package form and if not try the inst dir in the current wd.
+  if(nchar(system.file("rmd", "calibration-report.Rmd", package = "ICQC")) == 0){
+    report_rmd <- paste0(here(),"/inst/Rmd/calibration-report.Rmd")
+  } else {
+    report_rmd <- system.file("rmd", "calibration-report.Rmd", package = "ICQC")
+  }
   ## Generate filename
   if(is.null(report_filename)){
     report_filename <- paste0(strsplit(trim_path_int(filepath),"[.]")[[1]][1],"_Report")
   }
-  render(input = system.file("rmd", "calibration-report.Rmd", package = "ICQC"),
+  render(input = report_rmd,
          output_file = report_filename,
          output_dir = output_folder,
          params = list(cal_target = filepath, unts = "sec"),
