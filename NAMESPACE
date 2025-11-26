@@ -3,6 +3,7 @@
 export(calibration_report)
 export(parse_sequence)
 export(plot_cal_analyte)
+export(plot_res_analyte)
 importFrom(cowplot,ggdraw)
 importFrom(cowplot,plot_grid)
 importFrom(dplyr,filter)

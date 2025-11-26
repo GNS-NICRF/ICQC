@@ -6,7 +6,7 @@
 #' @param analyte_name character string matching the target analyte. E.g., "MSA".
 #' @param geom_se TRUE/FALSE to plot standard error
 #' @param geom_colour supply colour for regression line geom output.
-#' 
+#'
 #' @return an object of class 'lm'. See \code{stats::lm()}
 #'
 #' @author Matt Harris
@@ -38,10 +38,10 @@ get_cal_regression <- function(parsed_calibration,
   levels_data <- parsed_calibration$Cal_Levels %>%
     'colnames<-'(c(gsub("Amount", "Weight", colnames(.)))) %>%
     dplyr::select(Injection_Number,Level,contains(analyte_name)) %>%
-    mutate(across(everything(), ~as.numeric(.))) 
+    mutate(across(everything(), ~as.numeric(.)))
   analyte_data <- parsed_calibration$Data %>%
     select(Injection_Number,Level, contains(analyte_name)) %>%
-    mutate(across(everything(), ~as.numeric(.))) %>% 
+    mutate(across(everything(), ~as.numeric(.))) %>%
     left_join(levels_data) %>% # join
     'colnames<-'(c(colnames(.)[c(1,2)], "Amount","Area","Weight"))
   # Get data for fit
@@ -76,6 +76,8 @@ get_cal_regression <- function(parsed_calibration,
                     colour = geom_colour, fullrange = geom_extend))
     }
   }
+  # add analyte data just in case
+  rep_model[["analyte_data"]] <- analyte_data
   # Add in ggplot2 object
   return(rep_model)
 }
