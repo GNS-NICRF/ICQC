@@ -52,6 +52,8 @@ knitr::opts_chunk$set(echo = FALSE,
 #     return('<div style="page-break-before: always;" />')
 # }
 
+# Colours
+ion_clrs <- ion_colors()
 
 ```
   
@@ -109,7 +111,8 @@ for(i in seq_along(anion_ion_sp)){
 
   # Generate plots
   anion_plots[[i]] <- plot_cal_analyte(parsed_calibration = cal_Anions,
-                   analyte_name = anion_ion_sp[i])
+                   analyte_name = anion_ion_sp[i],
+                   regline_colour = ion_clrs[which(names(ion_clrs) == anion_ion_sp[i])])
   # print(plots[[i]])
   anion_plots_res_ppb[[i]] <- plot_res_analyte(parsed_calibration = cal_Anions,
                                     analyte_name = anion_ion_sp[i],
@@ -164,7 +167,8 @@ for(i in seq_along(cation_ion_sp)){
 
   # Generate plots
   cation_plots[[i]] <- plot_cal_analyte(parsed_calibration = cal_Cations,
-                   analyte_name = cation_ion_sp[i])
+                   analyte_name = cation_ion_sp[i],
+                   regline_colour = ion_clrs[which(names(ion_clrs) == anion_ion_sp[i])])
   # print(plots[[i]])
   cation_plots_res_ppb[[i]] <- plot_res_analyte(parsed_calibration = cal_Cations,
                                     analyte_name = cation_ion_sp[i],

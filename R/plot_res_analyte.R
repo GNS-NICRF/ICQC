@@ -62,7 +62,8 @@ plot_res_analyte <- function(parsed_calibration,
            Amount = analyte_reg$analyte_data$Amount,
            Weight = analyte_reg$analyte_data$Weight) %>%
     mutate(res_pct = Residuals/Area*100)
-
+  # theme constants
+  tsize <- theme_constants()
   # How to implement option for pct
   if(unit == "percent"){
     # Area, percent
@@ -81,7 +82,7 @@ plot_res_analyte <- function(parsed_calibration,
                                                      ifelse(sign(max_y) == 1,
                                                             yes = max_y + (max_y * axlim_offset_pct/100),
                                                             no = max_y - (max_y * axlim_offset_pct/100)))) +
-      theme_cowplot(12) +
+      theme_resplot(tsize$textsize_pdf) +
       theme(legend.position = 'inside',
             plot.title = element_text(hjust = 0.5)) +
       labs(x = "Level",
@@ -103,7 +104,7 @@ plot_res_analyte <- function(parsed_calibration,
                                                      ifelse(sign(max_y) == 1,
                                                             yes = max_y + (max_y * axlim_offset_pct/100),
                                                             no = max_y - (max_y * axlim_offset_pct/100)))) +
-      theme_cowplot(12) +
+      theme_resplot(tsize$textsize_pdf) +
       theme(legend.position = 'inside',
             plot.title = element_text(hjust = 0.5)) +
       labs(x = "Level",
