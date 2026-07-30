@@ -12,6 +12,9 @@
 
 ##### SETUP #####
 
+## Notes
+# First optimise existing fit for n points, then determine if the same fit can be accomplished with fewer points.
+
 ## Install/uninstall lines
 # detach('package:ecmwfr', unload = TRUE)
 # installr::uninstall.packages('ecmwfr')

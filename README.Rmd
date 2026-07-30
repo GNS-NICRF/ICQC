@@ -10,7 +10,7 @@ output:
 Tools for ion chromatography (IC) quality control and sign-off. A resource for the National Ice Core Facility.
 
 Author: Matt Harris, Earth Sciences New Zealand  
-Contact: m.harris@gns.cri.nz
+Contact: matt.harris@earthsciences.nz
 
 Install the package using the following code, assuming it is public. Building is unnecessary as it contains no non-R code.
 

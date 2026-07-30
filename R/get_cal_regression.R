@@ -24,8 +24,8 @@ get_cal_regression <- function(parsed_calibration,
                                geom_extend = TRUE,
                                geom_colour = 'red'){
   ## Test vars
-  # parsed_calibration = test_Anion
-  # analyte_name = "MSA"
+  # parsed_calibration = cal_Anions
+  # analyte_name = anion_ion_sp[i]
   # geom_se = TRUE
   # geom_extend = TRUE
   # geom_colour = 'red'
@@ -47,7 +47,20 @@ get_cal_regression <- function(parsed_calibration,
   # Get data for fit
   fit_data <- analyte_data %>% select(Weight, Area) %>% rename(x = Weight, y = Area)
   # For different types
-  if(grepl("Cubic", caltype)){
+  if(grepl("Lin",caltype)){
+    if(grepl("WithOffset", caltype)){
+      # Not through origin
+      rep_model <- lm(y ~ x, data = fit_data)
+      rep_model$geom <- list(
+        geom_smooth(data = fit_data, aes(x = x, y = y), formula = y ~ x, se = geom_se, method = 'lm',
+                    colour = geom_colour, fullrange = geom_extend))
+    } else {
+      rep_model <- lm(y ~ x - 1, data = fit_data)
+      rep_model$geom <- list(
+        geom_smooth(data = fit_data, aes(x = x, y = y), formula = y ~ x - 1, se = geom_se, method = 'lm',
+                    colour = geom_colour, fullrange = geom_extend))
+    }
+  } else if(grepl("Cubic", caltype)){
     if(grepl("WithOffset", caltype)){
       # Not through origin
       rep_model <- lm(y ~ poly(x, 3, raw = TRUE), data = fit_data)
@@ -62,19 +75,22 @@ get_cal_regression <- function(parsed_calibration,
         geom_smooth(data = fit_data, aes(x = x, y = y), formula = y ~ poly(x, 3, raw = TRUE) - 1, se = geom_se, method = 'lm',
                     colour = geom_colour, fullrange = geom_extend))
     }
-  } else if(grepl("Lin",caltype)){
+  } else if(grepl("Quad",caltype)){
     if(grepl("WithOffset", caltype)){
       # Not through origin
-      rep_model <- lm(y ~ x, data = fit_data)
+      # I() ensures the square of x is treated as a standalone variable
+      rep_model <- lm(y ~ x + I(x^2), data = fit_data)
       rep_model$geom <- list(
-        geom_smooth(data = fit_data, aes(x = x, y = y), formula = y ~ x, se = geom_se, method = 'lm',
+        geom_smooth(data = fit_data, aes(x = x, y = y), formula = y ~ x + I(x^2), se = geom_se, method = 'lm',
                     colour = geom_colour, fullrange = geom_extend))
     } else {
-      rep_model <- lm(y ~ x - 1, data = fit_data)
+      rep_model <- lm(y ~ x + I(x^2) - 1, data = fit_data)
       rep_model$geom <- list(
-        geom_smooth(data = fit_data, aes(x = x, y = y), formula = y ~ x - 1, se = geom_se, method = 'lm',
+        geom_smooth(data = fit_data, aes(x = x, y = y), formula = y ~ x + I(x^2) - 1, se = geom_se, method = 'lm',
                     colour = geom_colour, fullrange = geom_extend))
     }
+  } else {
+    stop("Calibration type not recognised: '", caltype,"'. Check function `get_cal_regression()`.")
   }
   # add analyte data just in case
   rep_model[["analyte_data"]] <- analyte_data
