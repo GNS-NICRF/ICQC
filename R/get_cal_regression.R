@@ -5,6 +5,7 @@
 #' @param parsed_calibration output from \code{parse_calibration()}
 #' @param analyte_name character string matching the target analyte. E.g., "MSA".
 #' @param geom_se TRUE/FALSE to plot standard error
+#' @param geom_extend TRUE/FALSE to extend geometry beyond fitting points.
 #' @param geom_colour supply colour for regression line geom output.
 #'
 #' @return an object of class 'lm'. See \code{stats::lm()}
@@ -15,7 +16,6 @@
 #' @importFrom magrittr %>%
 #' @importFrom dplyr select
 #' @importFrom dplyr rename
-#' @importFrom stats lm
 #'
 #' @noRd
 get_cal_regression <- function(parsed_calibration,
@@ -25,10 +25,10 @@ get_cal_regression <- function(parsed_calibration,
                                geom_colour = 'red'){
   ## Test vars
   # parsed_calibration = cal_Anions
-  # analyte_name = anion_ion_sp[i]
+  # analyte_name = "Fluoride"
   # geom_se = TRUE
   # geom_extend = TRUE
-  # geom_colour = 'red'
+  # geom_colour = 'green'
   # Curve sheet
   curve_sheet <- parsed_calibration$Cal_Curves
   # What type of curve?
@@ -47,51 +47,12 @@ get_cal_regression <- function(parsed_calibration,
   # Get data for fit
   fit_data <- analyte_data %>% select(Weight, Area) %>% rename(x = Weight, y = Area)
   # For different types
-  if(grepl("Lin",caltype)){
-    if(grepl("WithOffset", caltype)){
-      # Not through origin
-      rep_model <- lm(y ~ x, data = fit_data)
-      rep_model$geom <- list(
-        geom_smooth(data = fit_data, aes(x = x, y = y), formula = y ~ x, se = geom_se, method = 'lm',
-                    colour = geom_colour, fullrange = geom_extend))
-    } else {
-      rep_model <- lm(y ~ x - 1, data = fit_data)
-      rep_model$geom <- list(
-        geom_smooth(data = fit_data, aes(x = x, y = y), formula = y ~ x - 1, se = geom_se, method = 'lm',
-                    colour = geom_colour, fullrange = geom_extend))
-    }
-  } else if(grepl("Cubic", caltype)){
-    if(grepl("WithOffset", caltype)){
-      # Not through origin
-      rep_model <- lm(y ~ poly(x, 3, raw = TRUE), data = fit_data)
-      rep_model$geom <- list(
-          geom_smooth(data = fit_data, aes(x = x, y = y), formula = y ~ poly(x, 3, raw = TRUE), se = geom_se, method = 'lm',
-                      colour = geom_colour, fullrange = geom_extend))
-    } else {
-      # Assuming there's only through and not through origin here.
-      # Through origin
-      rep_model <- lm(y ~ poly(x, 3, raw = TRUE) - 1, data = fit_data)
-      rep_model$geom <- list(
-        geom_smooth(data = fit_data, aes(x = x, y = y), formula = y ~ poly(x, 3, raw = TRUE) - 1, se = geom_se, method = 'lm',
-                    colour = geom_colour, fullrange = geom_extend))
-    }
-  } else if(grepl("Quad",caltype)){
-    if(grepl("WithOffset", caltype)){
-      # Not through origin
-      # I() ensures the square of x is treated as a standalone variable
-      rep_model <- lm(y ~ x + I(x^2), data = fit_data)
-      rep_model$geom <- list(
-        geom_smooth(data = fit_data, aes(x = x, y = y), formula = y ~ x + I(x^2), se = geom_se, method = 'lm',
-                    colour = geom_colour, fullrange = geom_extend))
-    } else {
-      rep_model <- lm(y ~ x + I(x^2) - 1, data = fit_data)
-      rep_model$geom <- list(
-        geom_smooth(data = fit_data, aes(x = x, y = y), formula = y ~ x + I(x^2) - 1, se = geom_se, method = 'lm',
-                    colour = geom_colour, fullrange = geom_extend))
-    }
-  } else {
-    stop("Calibration type not recognised: '", caltype,"'. Check function `get_cal_regression()`.")
-  }
+  # The logic tree for this is nested in curve_selector.
+  rep_model <- curve_selector(caltype,
+                              fit_data,
+                              geom_se,
+                              geom_extend,
+                              geom_colour)
   # add analyte data just in case
   rep_model[["analyte_data"]] <- analyte_data
   # Add in ggplot2 object

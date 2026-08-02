@@ -15,14 +15,14 @@
 #'
 #' @examples
 #' summary_data <- parse_seq_summary(filepath, type)
-#' 
+#'
 #' @importFrom readxl read_xls
 #' @importFrom magrittr %>%
 #' @importFrom dplyr filter
 #' @importFrom dplyr select
 #' @importFrom dplyr mutate
 #' @importFrom utils tail
-#' 
+#'
 #' @noRd
 parse_seq_summary <- function(filepath,
                               ion_type,
@@ -32,8 +32,8 @@ parse_seq_summary <- function(filepath,
   # filepath = filepath
   # ion_type = type
   # header_lines_ind = seq(1,4,1)
-  # verbose = F
-  
+  # verbose = T
+
   # Var pass
   type = ion_type
   # Read in file
@@ -61,7 +61,7 @@ parse_seq_summary <- function(filepath,
     unlist(lapply(strsplit(data_headers,"[_]"),tail, n = 1L)),"_",
     unlist(lapply(strsplit(data_headers,"[_]"),"[[",1)))
   data_columns <- rawsheet[seq(max(header_lines_ind)+1,nrow(rawsheet),1),
-                           seq(ncol(starter_columns)+1,ncol(rawsheet),1)] %>%  
+                           seq(ncol(starter_columns)+1,ncol(rawsheet),1)] %>%
     'colnames<-'(c(data_headers_re))
   # bind
   data_re <- cbind(starter_columns,data_columns)
@@ -76,11 +76,11 @@ parse_seq_summary <- function(filepath,
 #' @description Parse the calibration levels page of a sequence .xls file into a data.frame
 #'
 #' @param filepath Full filepath to .xls file containing calibration levels sheet
-#' @param ion_type One of either 'Anion' or 'Cation' to target the respective rows. 
+#' @param ion_type One of either 'Anion' or 'Cation' to target the respective rows.
 #' Shouldn't matter too much as the information is generally duplicated across each.
 #' @param header_lines_ind row indices of header lines in data. Defaults to first four.
 #' @param verbose TRUE/FALSE to show messages during \code{readxl::read_xls()} call.
-#' @param drop_only_NA TRUE/FALSE to drop columns containing only NA. This is 
+#' @param drop_only_NA TRUE/FALSE to drop columns containing only NA. This is
 #' intended to drop trailing columns that are sometimes included that by
 #' \code{readxl::read_xls()} that contain only whitespace.
 #'
@@ -90,14 +90,14 @@ parse_seq_summary <- function(filepath,
 #'
 #' @examples
 #' summary_data <- parse_cal_levels(filepath, type)
-#' 
+#'
 #' @importFrom readxl read_xls
 #' @importFrom magrittr %>%
 #' @importFrom dplyr filter
 #' @importFrom dplyr select
 #' @importFrom dplyr mutate
 #' @importFrom utils tail
-#' 
+#'
 #' @noRd
 parse_cal_levels <- function(filepath,
                              ion_type,
@@ -110,7 +110,7 @@ parse_cal_levels <- function(filepath,
   # header_lines_ind = seq(1,4,1)
   # verbose = F
   # drop_only_NA = TRUE
-  
+
   # Var pass
   type = ion_type
   # Read in file
@@ -138,10 +138,10 @@ parse_cal_levels <- function(filepath,
     unlist(lapply(strsplit(data_headers,"[_]"),tail, n = 1L)),"_",
     unlist(lapply(strsplit(data_headers,"[_]"),"[[",1)))
   data_columns <- rawsheet[seq(max(header_lines_ind)+1,nrow(rawsheet),1),
-                           seq(ncol(starter_columns)+1,ncol(rawsheet),1)] %>%  
+                           seq(ncol(starter_columns)+1,ncol(rawsheet),1)] %>%
     'colnames<-'(c(data_headers_re))
   if(drop_only_NA){
-    data_columns <- data_columns %>% 
+    data_columns <- data_columns %>%
       select(where(~!all(is.na(.x))))
   }
   # bind
@@ -166,12 +166,12 @@ parse_cal_levels <- function(filepath,
 #'
 #' @examples
 #' summary_data <- parse_cal_curve_info(filepath)
-#' 
+#'
 #' @importFrom readxl read_xls
 #' @importFrom magrittr %>%
 #' @importFrom dplyr filter
 #' @importFrom dplyr select
-#' 
+#'
 #' @noRd
 parse_cal_curve_info <- function(filepath,
                                  header_lines_ind = seq(1,3,1),
@@ -200,21 +200,21 @@ parse_cal_curve_info <- function(filepath,
     filter(., rowSums(is.na(.)) != ncol(.)) %>%
     select(-c(1,2)) %>%
     'colnames<-'(c("Name","Ret_Time","Cal_Type","Cal_Fn","nPoints","R_Squared")) %>%
-    as.data.frame() # Force data frame 
+    as.data.frame() # Force data frame
   return(data)
 }
 
-#' Parse the formula of a calibration 
-#' 
+#' Parse the formula of a calibration
+#'
 #' @description Return the calibration regression formula from a calibration list object
 #' as a formula object to pass to e.g., \code{stats::lm()}
-#' 
+#'
 #' @param parsed_calibration output of \code{parse_sequence()}, applied to a calibration sequence.
 #' @param analyte_name character, name of analyte. E.g., "MSA".
-#' 
+#'
 #' @importFrom magrittr %>%
 #' @importFrom dplyr filter
-#' 
+#'
 parse_cal_formula <- function(parsed_calibration,
                               analyte_name){
   ## Test vars
@@ -226,8 +226,8 @@ parse_cal_formula <- function(parsed_calibration,
   curve_row <- curve_sheet %>% filter(Name == analyte_name)
   caltype = curve_row$Cal_Type
   ## Parse. This should work for all formulas
-  formula_text <- gsub("E","e",curve_row$Cal_Fn) 
-  formula_text <- gsub("=","~",formula_text) 
+  formula_text <- gsub("E","e",curve_row$Cal_Fn)
+  formula_text <- gsub("=","~",formula_text)
   cal_formula <- as.formula(formula_text)
   return(cal_formula)
 }
