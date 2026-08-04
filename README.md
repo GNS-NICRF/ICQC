@@ -34,6 +34,9 @@ This package does one thing at present:
 
 Wishlist:
 
+- Calibration point inclusion/exclusion as a part of (1) the input
+  template format, and (2) plotted as *non-included* (hollow, perhaps)
+  points on all the calibration plots.
 - Supply a folder to calibration_report(), and automatically detect &
   generate reports for all calibration .xls files therein.
 - Determine optimum calibration point \# from a series of supplied ion

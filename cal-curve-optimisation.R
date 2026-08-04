@@ -36,17 +36,18 @@ scripts_dir <- paste0(proj_dir,"R/")
 invisible(sapply(list.files(scripts_dir, full.names = TRUE),
                  function(x){source(x)}))
 
-data_dir <- paste0(proj_dir,"data-raw/test-data-2025-10-16/")
+data_dir_raw <- paste0(proj_dir,"data-raw/test-data-2025-10-16/")
+data_dir_raw_2 <- paste0(proj_dir,"data-raw/test-data-2026-07-24/")
 
 ##### Get a curve for an example analyte #####
 
 ## Section notes
 # Get a curve, yeah
-example_files <- list.files(data_dir, full.names = T)
+example_files <- list.files(data_dir_raw_2, full.names = T)
 cal_Anions <- parse_sequence(filepath = example_files[1], ion_type = "Anion")
 
 # Just one ion for now
-ion = "MSA"
+ion = "Fluoride"
 ## Data etc
 analyte_reg <- get_cal_regression(cal_Anions, ion)
 analyte_data_nowgt <- cal_Anions$Data %>%
@@ -72,13 +73,19 @@ analyte_data_nowgt <- cal_Anions$Data %>%
 # - through origin
 # - 1/x
 
+# The best way to do this would be to examine the performance of a number of calibrations and identify which
+# points are redundant.
 
 
 
+# leverage
+lev_vals <- hatvalues(analyte_reg)
 
+cooks <- cooks.distance(analyte_reg)
 
+plot(analyte_reg$analyte_data$Weight,cooks)
 
-
+plot(cooks)
 
 
 
