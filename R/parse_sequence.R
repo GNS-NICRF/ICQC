@@ -1,6 +1,6 @@
 #' Parse a sequence excel file.
 #'
-#' @description Read in and parse a sequence excel file into a nested list of its 
+#' @description Read in and parse a sequence excel file into a nested list of its
 #' components. The sequence type (Calibration or sample run) is detected automatically
 #' based on the filename. Ion type (Anion or Cation) must be specified.
 #'
@@ -9,18 +9,18 @@
 #' @param ion_type One of either 'Anion' or 'Cation'.
 #' @param verbose TRUE/FALSE to print status messages.
 #' #'
-#' @return A list containing sequence information and data. 
+#' @return A list containing sequence information and data.
 #'
 #' @author Matt Harris
 #'
 #' @examples
 #' ## Code examples here
 #' sequence <- parse_sequence(filepath = "Drive:/full/path/to/file.xls", ion_type = "Anion")
-#'                            
+#'
 #' @importFrom magrittr %>%
-#' 
+#'
 #' @export
-#' 
+#'
 parse_sequence <- function(filepath,
                            ion_type,
                            verbose = TRUE){
@@ -57,14 +57,17 @@ parse_sequence <- function(filepath,
     cal_list$DateYYYYMMDD <- filename_bits[1]
     ## Get the summary sheet data
     cal_list$Data <- parse_seq_summary(filepath, type)
-    ## Calibration levels 
+    ## Calibration levels
     cal_list$Cal_Levels <- parse_cal_levels(filepath,type)
     ## Curve information
     cal_list$Cal_Curves <- parse_cal_curve_info(filepath)
     # Naming scheme for return
     return_list <- cal_list
   } else {
-    if(verbose){message("Parsing sample sequence")}
+    if(verbose){message("Parsing sample/analytical sequence")}
+    # Input data list
+    data_list <- vector("list", length = 9) %>% 'names<-'(c("Instrument","Sequence_Type","Ion_Type","Number","Date","DateYYYYMMDD","Data","Cal_Levels","Cal_Curves"))
+
     ## Code to come
   }
   return(return_list)

@@ -6,6 +6,7 @@
 #'
 #' @param filepath Full filepath to .xls file containing ion summary sheet.
 #' @param ion_type One of either 'Anion' or 'Cation' to target the respective summary sheet.
+#' @param xls_type One of either "Detect", "Calibration" or "Analytical" to denote the type of sequence this summary is from. If set to "Detect", the filename will be used to evaluate the run type.
 #' @param header_lines_ind row indices of header lines in data. Defaults to first four.
 #' @param verbose TRUE/FALSE to show messages during \code{readxl::read_xls()} call.
 #'
@@ -26,14 +27,24 @@
 #' @noRd
 parse_seq_summary <- function(filepath,
                               ion_type,
+                              xls_type = 'Detect',
                               header_lines_ind = seq(1,4,1),
                               verbose = FALSE){
   ## Test vars
   # filepath = filepath
-  # ion_type = type
+  # ion_type = "Cation"
+  # xls_type = "Analytical"
   # header_lines_ind = seq(1,4,1)
   # verbose = T
-
+  # Auto xls type detection
+  # Pretty simple - if it doesn't have "Calibration" in the file name, then it's an analytical sequence.
+  if(xls_type == 'Detect'){
+    if(grepl("Calibration",trim_path_int(filepath))){
+      xls_type = 'Calibration'
+    } else {
+      xls_type = 'Analytical'
+    }
+  }
   # Var pass
   type = ion_type
   # Read in file
@@ -43,18 +54,33 @@ parse_seq_summary <- function(filepath,
                          range = cell_limits(c(1, NA), c(NA,NA)),
                          na = c("n.a.",NA,""), col_names = F, skip = 0)
   } else {
-    suppressMessages(
-      rawsheet <- read_xls(path = filepath,
-                           sheet = grep(type,readxl::excel_sheets(filepath)),
-                           range = cell_limits(c(1, NA), c(NA,NA)),
-                           na = c("n.a.",NA,""), col_names = F, skip = 0))
+    suppressMessages(rawsheet <- read_xls(path = filepath,
+                                          sheet = grep(type,readxl::excel_sheets(filepath)),
+                                          range = cell_limits(c(1, NA), c(NA,NA)),
+                                          na = c("n.a.",NA,""), col_names = F, skip = 0))
   }
-  # Contd
+  # Headers, dupe testing
   header_lines_comb <- apply(rawsheet[header_lines_ind,], 2, function(col) paste(col, collapse = "_")) %>% 'names<-'(c(NULL))
+  dupes <- which(duplicated(header_lines_comb)) %>% as.numeric()
+  # Remove duplicates
+  rawsheet <- rawsheet %>% select(-all_of(dupes))
+  if(length(dupes) != 0){header_lines_comb = header_lines_comb[-c(dupes)]}
   # Starter columns: those before the first 'amount' column
-  starter_columns <- rawsheet[seq(max(header_lines_ind)+1,nrow(rawsheet),1),seq(1,c(grep("Amount",header_lines_comb)[1])-1,1)] %>%
-    'colnames<-'(c("Injection_Number","Type","Level","Dilution","QC_Type","QC_Version","Inject_Time","Name")) %>%
-    mutate(across(c(Injection_Number,Level,Dilution,QC_Version), ~as.numeric(.)))
+  # Is this a sample export, where calibration is tracked as a separate column?
+  if(xls_type == "Analytical" | xls_type == "Sample"){
+    starter_columns <- rawsheet[seq(max(header_lines_ind)+1,nrow(rawsheet),1),seq(1,c(grep("Amount",header_lines_comb)[1])-1,1)] %>%
+      'colnames<-'(c("Injection_Number","Type","Level","Dilution","QC_Version_Number","Calibration","Inject_Time","Name")) %>%
+      mutate(Level = as.numeric(str_extract(Level, "\\d+"))) %>%
+      mutate(across(c(Injection_Number,Dilution,Calibration), ~as.numeric(.))) %>%
+      mutate(Inject_Time = as.POSIXct(as.numeric(Inject_Time) * 86400, origin = "1899-12-30", tz = "UTC"))
+  } else if(xls_type == "Calibration"){
+    starter_columns <- rawsheet[seq(max(header_lines_ind)+1,nrow(rawsheet),1),seq(1,c(grep("Amount",header_lines_comb)[1])-1,1)] %>%
+      'colnames<-'(c("Injection_Number","Type","Level","Dilution","QC_Type","QC_Version","Inject_Time","Name")) %>%
+      mutate(across(c(Injection_Number,Level,Dilution,QC_Version), ~as.numeric(.))) %>%
+      mutate(Inject_Time = as.POSIXct(as.numeric(Inject_Time) * 86400, origin = "1899-12-30", tz = "UTC"))
+  } else {
+    stop("xls_type must be one of either 'Calibration' or 'Analytical'.")
+  }
   # Data headers: those after (+ including) the first 'amount' column
   data_headers <- header_lines_comb[c(grep("Amount",header_lines_comb)[1]):ncol(rawsheet)]
   data_headers_re <- paste0(
@@ -66,8 +92,12 @@ parse_seq_summary <- function(filepath,
   # bind
   data_re <- cbind(starter_columns,data_columns)
   # remove non Type lines
-  data_re_type <- data_re[grep(type,data_re$Name),]
-  return(data_re_type)
+  if(xls_type == "Calibration"){
+    data_re_type <- data_re[grep(type,data_re$Name),] # For calibrations, we dispense with waters and other injections.
+    return(data_re_type)
+  } else {
+    return(data_re)
+  }
 }
 
 
