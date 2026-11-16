@@ -32,7 +32,7 @@ parse_seq_summary <- function(filepath,
                               verbose = FALSE){
   ## Test vars
   # filepath = filepath
-  # ion_type = "Cation"
+  # ion_type = "Anion"
   # xls_type = "Analytical"
   # header_lines_ind = seq(1,4,1)
   # verbose = T
@@ -65,6 +65,10 @@ parse_seq_summary <- function(filepath,
   # Remove duplicates
   rawsheet <- rawsheet %>% select(-all_of(dupes))
   if(length(dupes) != 0){header_lines_comb = header_lines_comb[-c(dupes)]}
+  # Remove any that are all NA
+  which_na <- which(unlist(lapply(strsplit(header_lines_comb,"_"),function(x){all(x == "NA")})))
+  rawsheet <- rawsheet %>% select(-all_of(which_na))
+  if(length(which_na) != 0){header_lines_comb = header_lines_comb[-c(which_na)]}
   # Starter columns: those before the first 'amount' column
   # Is this a sample export, where calibration is tracked as a separate column?
   if(xls_type == "Analytical" | xls_type == "Sample"){
@@ -88,7 +92,8 @@ parse_seq_summary <- function(filepath,
     unlist(lapply(strsplit(data_headers,"[_]"),"[[",1)))
   data_columns <- rawsheet[seq(max(header_lines_ind)+1,nrow(rawsheet),1),
                            seq(ncol(starter_columns)+1,ncol(rawsheet),1)] %>%
-    'colnames<-'(c(data_headers_re))
+    'colnames<-'(c(data_headers_re)) %>%
+    mutate(across(everything(), as.numeric))
   # bind
   data_re <- cbind(starter_columns,data_columns)
   # remove non Type lines

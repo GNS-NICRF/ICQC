@@ -122,8 +122,9 @@ plot_cal_analyte <- function(parsed_calibration,
                     ylim = c(0,(max_y - min_y)/100*10))
 
   # Make simple plot for regression and labels
-
-  if(inset == 'beside'){
+  if(is.null(inset)){
+    combined_plot <- main_plot
+  } else if(inset == 'beside'){
     # Information
     # reg_info <- ggplot() +
     #   scale_x_continuous(expand = c(0,0), limits = c(0,(max_x - min_x)/100*50)) +
@@ -199,8 +200,6 @@ plot_cal_analyte <- function(parsed_calibration,
     #                            bottom_plot,
     #                            nrow = 2, ncol = 1,
     #                            rel_heights = c(0.2,1))
-  } else if(is.null(inset)){
-    combined_plot <- main_plot
   }
   return(combined_plot)
 }

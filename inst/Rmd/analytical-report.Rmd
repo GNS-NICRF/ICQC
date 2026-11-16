@@ -1,9 +1,9 @@
 ---
 params: 
-  an_target: !r system.file("data-raw", "20261027_BLIZZARD_NORTH_RICE_IC_DEEP_1737_182416_Oct_2025 14_46.xls", package = "ICQC")
+  target: !r system.file("data-raw/test-data-2026-11-04/", "20261027_BLIZZARD_NORTH_RICE_IC_DEEP_1737_1824_16_Nov_2026 08_58.xls", package = "ICQC")
   unts: !r as.character("sec")
 title: "ICF IC Analytical Report (v1)"
-author: "`r calib_info_forYAML(params$an_target)`"
+author: "`r ana_info_forYAML(params$target)`"
 date: "Generated `r round(Sys.time(), units = params$unts)` by `r Sys.info()[['user']]` (`r Sys.info()[['nodename']]`)"
 output: 
   pdf_document:
@@ -17,7 +17,7 @@ output:
 
 This is an automatically generated report for the following sequence: 
 
-`r trim_path_int(params$an_target)`
+`r trim_path_int(params$target)`
 
 ```{r setup, echo = FALSE, results = FALSE, message = FALSE}
 
@@ -38,8 +38,9 @@ knitr::opts_chunk$set(echo = FALSE,
                       out.extra = "",
                       comment = "")
 
-# Get functions
-# invisible(lapply(list.files(path = paste0(here(),"/R/"), full.names = T), source))
+# Get functions (if testing)
+invisible(lapply(list.files(path = paste0(here(),"/R/"), full.names = T), source))
+proj_dir <- paste0(here::here(),"/")
 
 # Report params
 # Parameterised reporting per https://bookdown.org/yihui/rmarkdown-cookbook/parameterized-reports.html
@@ -57,37 +58,31 @@ ion_clrs <- ion_colors()
 
 ```
   
-```{r import-calibration-data, results = 'hide', warning = FALSE, echo = FALSE, message = FALSE}
-
-# Import data from a single calibration
-## Test vars (bit broken)
-## cal_target <- list.files(data_dir_raw_2, full.names = T)[1]
-## params = vector('list', length = 1) %>% 'names<-'(c('cal_target'))
-## params$cal_target = as.character(cal_target)
-
-# cal_Anions <- parse_sequence(filepath = list.files(data_dir_raw_2, full.names = T)[1], ion_type = "Anion")
-# cal_Cations <- parse_sequence(filepath = list.files(data_dir_raw_2, full.names = T)[1], ion_type = "Cation")
-
-cal_Anions <- parse_sequence(filepath = params$cal_target, ion_type = "Anion")
-cal_Cations <- parse_sequence(filepath = params$cal_target, ion_type = "Cation")
-
-
-```
-
 ```{r import-analytical-data, results = 'hide', warning = FALSE, echo = FALSE, message = FALSE}
 
-cal_Anions <- parse_sequence(filepath = params$cal_target, ion_type = "Anion")
-cal_Cations <- parse_sequence(filepath = params$cal_target, ion_type = "Cation")
+# ana_Anions <- parse_sequence(filepath = params$target, ion_type = "Anion")
+# ana_Cations <- parse_sequence(filepath = params$target, ion_type = "Cation")
+
+filepath <- list.files(paste0(proj_dir,"data-raw/test-data-2026-11-04/"), full.names = T)[1]
+
+ana_Anions <- parse_sequence(filepath = filepath, ion_type = "Anion", 
+                             matching_cal_dir = paste0(proj_dir,"data-raw/"))
+ana_Cations <- parse_sequence(filepath = filepath, ion_type = "Cation", 
+                             matching_cal_dir = paste0(proj_dir,"data-raw/"))
 
 
 ```
+
+
+
+
 
 
 ```{r plot-production-anions, results = 'hide', warning = FALSE, echo = FALSE, message = FALSE}
 
 # Get ions
 anion_ion_sp <- unique(str_remove_all(
-  colnames(cal_Anions$Data[,grep("Amount",colnames(cal_Anions$Data)):ncol(cal_Anions$Data)]),
+  colnames(ana_Anions$Data[,grep("Amount",colnames(ana_Anions$Data)):ncol(ana_Anions$Data)]),
   "_Amount|_Area"))
 # Loop
 anion_plots <- vector('list', length(anion_ion_sp))
@@ -99,9 +94,9 @@ for(i in seq_along(anion_ion_sp)){
   # i = 7
   # message(ion_sp[i])
   ## Get reg info
-  analyte_reg <- get_cal_regression(cal_Anions, anion_ion_sp[i])
+  analyte_reg <- get_cal_regression(ana_Anions, anion_ion_sp[i])
   ## This block formats the regression text. All to turn ^3 into a properly displayed exponent
-  model_regression = cal_Anions$Cal_Curves$Cal_Fn[which(cal_Anions$Cal_Curves$Name == anion_ion_sp[i])]
+  model_regression = ana_Anions$Cal_Curves$Cal_Fn[which(ana_Anions$Cal_Curves$Name == anion_ion_sp[i])]
   # find and replace exponents
   reg_exp_ind <- stringi::stri_locate_all_fixed(model_regression, pattern = "^")[[1]][,1] %>% as.numeric()
   if(all(!is.na(reg_exp_ind))){
@@ -118,22 +113,22 @@ for(i in seq_along(anion_ion_sp)){
   }
   anion_regressions[[i]] <- str_replace_all(model_regression,"\\s+\\*\\s+","*")
   ## Print info using cat
-  # analyte_data_nowgt <- cal_Anions$Data %>%
+  # analyte_data_nowgt <- ana_Anions$Data %>%
   #   select(Injection_Number,Level, contains(anion_ion_sp[i])) %>%
   #   mutate(across(everything(), ~as.numeric(.))) %>% 
   #   'colnames<-'(c(colnames(.)[c(1,2)], "Amount","Area"))#,"Weight"))
   ## Print info
 
   # Generate plots
-  anion_plots[[i]] <- plot_cal_analyte(parsed_calibration = cal_Anions,
+  anion_plots[[i]] <- plot_cal_analyte(parsed_calibration = ana_Anions,
                    analyte_name = anion_ion_sp[i],
                    regline_colour = ion_clrs[which(names(ion_clrs) == anion_ion_sp[i])])
   # print(plots[[i]])
-  anion_plots_res_ppb[[i]] <- plot_res_analyte(parsed_calibration = cal_Anions,
+  anion_plots_res_ppb[[i]] <- plot_res_analyte(parsed_calibration = ana_Anions,
                                     analyte_name = anion_ion_sp[i],
                                     unit = "area")
   # print(plots_res_ppb[[i]])
-  anion_plots_res_pct[[i]] <- plot_res_analyte(parsed_calibration = cal_Anions,
+  anion_plots_res_pct[[i]] <- plot_res_analyte(parsed_calibration = ana_Anions,
                                     analyte_name = anion_ion_sp[i],
                                     unit = "percent")
   # print(plots_res_pct[[i]])
@@ -145,7 +140,7 @@ for(i in seq_along(anion_ion_sp)){
 
 # Get ions
 cation_ion_sp <- unique(str_remove_all(
-  colnames(cal_Cations$Data[,grep("Amount",colnames(cal_Cations$Data)):ncol(cal_Cations$Data)]),
+  colnames(ana_Cations$Data[,grep("Amount",colnames(ana_Cations$Data)):ncol(ana_Cations$Data)]),
   "_Amount|_Area"))
 # Loop
 cation_plots <- vector('list', length(cation_ion_sp))
@@ -155,9 +150,9 @@ cation_regressions <- vector('list', length(cation_ion_sp))
 for(i in seq_along(cation_ion_sp)){
   # message(ion_sp[i])
   ## Get reg info
-  analyte_reg <- get_cal_regression(cal_Cations, cation_ion_sp[i])
+  analyte_reg <- get_cal_regression(ana_Cations, cation_ion_sp[i])
   ## This block formats the regression text. All to turn ^3 into a properly displayed exponent
-  model_regression = cal_Cations$Cal_Curves$Cal_Fn[which(cal_Cations$Cal_Curves$Name == cation_ion_sp[i])]
+  model_regression = ana_Cations$Cal_Curves$Cal_Fn[which(ana_Cations$Cal_Curves$Name == cation_ion_sp[i])]
   # find and replace exponents
   reg_exp_ind <- stringi::stri_locate_all_fixed(model_regression, pattern = "^")[[1]][,1] %>% as.numeric()
   if(all(!is.na(reg_exp_ind))){
@@ -174,22 +169,22 @@ for(i in seq_along(cation_ion_sp)){
   }
   cation_regressions[[i]] <- str_replace_all(model_regression,"\\s+\\*\\s+","*")
   ## Print info using cat
-  # analyte_data_nowgt <- cal_Cations$Data %>%
+  # analyte_data_nowgt <- ana_Cations$Data %>%
   #   select(Injection_Number,Level, contains(cation_ion_sp[i])) %>%
   #   mutate(across(everything(), ~as.numeric(.))) %>% 
   #   'colnames<-'(c(colnames(.)[c(1,2)], "Amount","Area"))#,"Weight"))
   ## Print info
 
   # Generate plots
-  cation_plots[[i]] <- plot_cal_analyte(parsed_calibration = cal_Cations,
+  cation_plots[[i]] <- plot_cal_analyte(parsed_calibration = ana_Cations,
                    analyte_name = cation_ion_sp[i],
                    regline_colour = ion_clrs[which(names(ion_clrs) == anion_ion_sp[i])])
   # print(plots[[i]])
-  cation_plots_res_ppb[[i]] <- plot_res_analyte(parsed_calibration = cal_Cations,
+  cation_plots_res_ppb[[i]] <- plot_res_analyte(parsed_calibration = ana_Cations,
                                     analyte_name = cation_ion_sp[i],
                                     unit = "area")
   # print(plots_res_ppb[[i]])
-  cation_plots_res_pct[[i]] <- plot_res_analyte(parsed_calibration = cal_Cations,
+  cation_plots_res_pct[[i]] <- plot_res_analyte(parsed_calibration = ana_Cations,
                                     analyte_name = cation_ion_sp[i],
                                     unit = "percent")
   # print(plots_res_pct[[i]])
@@ -208,20 +203,20 @@ for(i in seq_along(cation_ion_sp)){
 ## ion
 ion = "Fluoride"
 ## Data etc
-analyte_reg <- get_cal_regression(cal_Anions, ion)
-analyte_data_nowgt <- cal_Anions$Data %>%
+analyte_reg <- get_cal_regression(ana_Anions, ion)
+analyte_data_nowgt <- ana_Anions$Data %>%
   select(Injection_Number,Level, contains(ion)) %>%
   mutate(across(everything(), ~as.numeric(.))) %>% 
   'colnames<-'(c(colnames(.)[c(1,2)], "Amount","Area"))#,"Weight"))
 ## Text
 cat(paste0("--------------------------------------", " \n"))
 cat(paste0(ion,", valid n = ",length(which(!is.na(analyte_data_nowgt$Area))), ", ",
-           cal_Anions$Cal_Curves$Cal_Type[which(cal_Anions$Cal_Curves$Name == ion)]," \n"))
-cat(paste0(cal_Anions$Instrument,
+           ana_Anions$Cal_Curves$Cal_Type[which(ana_Anions$Cal_Curves$Name == ion)]," \n"))
+cat(paste0(ana_Anions$Instrument,
            ", ",
-           paste0(cal_Anions$Ion_Type," ",cal_Anions$Number),
+           paste0(ana_Anions$Ion_Type," ",ana_Anions$Number),
            ", ", 
-           cal_Anions$Date," \n"))
+           ana_Anions$Date," \n"))
 cat(anion_regressions[[which(anion_ion_sp == ion)]]," \n")
 cat(paste0("R\u00B2 = ", round(summary(analyte_reg)$r.squared,5)," \n"))
 # plots
@@ -236,20 +231,20 @@ print(anion_plots_res_pct[[which(anion_ion_sp == ion)]])
 ## ion
 ion = "MSA"
 ## Data etc
-analyte_reg <- get_cal_regression(cal_Anions, ion)
-analyte_data_nowgt <- cal_Anions$Data %>%
+analyte_reg <- get_cal_regression(ana_Anions, ion)
+analyte_data_nowgt <- ana_Anions$Data %>%
   select(Injection_Number,Level, contains(ion)) %>%
   mutate(across(everything(), ~as.numeric(.))) %>% 
   'colnames<-'(c(colnames(.)[c(1,2)], "Amount","Area"))#,"Weight"))
 ## Text
 cat(paste0("--------------------------------------", " \n"))
 cat(paste0(ion,", valid n = ",length(which(!is.na(analyte_data_nowgt$Area))), ", ",
-           cal_Anions$Cal_Curves$Cal_Type[which(cal_Anions$Cal_Curves$Name == ion)]," \n"))
-cat(paste0(cal_Anions$Instrument,
+           ana_Anions$Cal_Curves$Cal_Type[which(ana_Anions$Cal_Curves$Name == ion)]," \n"))
+cat(paste0(ana_Anions$Instrument,
            ", ",
-           paste0(cal_Anions$Ion_Type," ",cal_Anions$Number),
+           paste0(ana_Anions$Ion_Type," ",ana_Anions$Number),
            ", ", 
-           cal_Anions$Date," \n"))
+           ana_Anions$Date," \n"))
 cat(anion_regressions[[which(anion_ion_sp == ion)]]," \n")
 cat(paste0("R\u00B2 = ", round(summary(analyte_reg)$r.squared,5)," \n"))
 # plots
@@ -264,20 +259,20 @@ print(anion_plots_res_pct[[which(anion_ion_sp == ion)]])
 ## ion
 ion = "Chloride"
 ## Data etc
-analyte_reg <- get_cal_regression(cal_Anions, ion)
-analyte_data_nowgt <- cal_Anions$Data %>%
+analyte_reg <- get_cal_regression(ana_Anions, ion)
+analyte_data_nowgt <- ana_Anions$Data %>%
   select(Injection_Number,Level, contains(ion)) %>%
   mutate(across(everything(), ~as.numeric(.))) %>% 
   'colnames<-'(c(colnames(.)[c(1,2)], "Amount","Area"))#,"Weight"))
 ## Text
 cat(paste0("--------------------------------------", " \n"))
 cat(paste0(ion,", valid n = ",length(which(!is.na(analyte_data_nowgt$Area))), ", ",
-           cal_Anions$Cal_Curves$Cal_Type[which(cal_Anions$Cal_Curves$Name == ion)]," \n"))
-cat(paste0(cal_Anions$Instrument,
+           ana_Anions$Cal_Curves$Cal_Type[which(ana_Anions$Cal_Curves$Name == ion)]," \n"))
+cat(paste0(ana_Anions$Instrument,
            ", ",
-           paste0(cal_Anions$Ion_Type," ",cal_Anions$Number),
+           paste0(ana_Anions$Ion_Type," ",ana_Anions$Number),
            ", ", 
-           cal_Anions$Date," \n"))
+           ana_Anions$Date," \n"))
 cat(anion_regressions[[which(anion_ion_sp == ion)]]," \n")
 cat(paste0("R\u00B2 = ", round(summary(analyte_reg)$r.squared,5)," \n"))
 # plots
@@ -292,20 +287,20 @@ print(anion_plots_res_pct[[which(anion_ion_sp == ion)]])
 ## ion
 ion = "Nitrite"
 ## Data etc
-analyte_reg <- get_cal_regression(cal_Anions, ion)
-analyte_data_nowgt <- cal_Anions$Data %>%
+analyte_reg <- get_cal_regression(ana_Anions, ion)
+analyte_data_nowgt <- ana_Anions$Data %>%
   select(Injection_Number,Level, contains(ion)) %>%
   mutate(across(everything(), ~as.numeric(.))) %>% 
   'colnames<-'(c(colnames(.)[c(1,2)], "Amount","Area"))#,"Weight"))
 ## Text
 cat(paste0("--------------------------------------", " \n"))
 cat(paste0(ion,", valid n = ",length(which(!is.na(analyte_data_nowgt$Area))), ", ",
-           cal_Anions$Cal_Curves$Cal_Type[which(cal_Anions$Cal_Curves$Name == ion)]," \n"))
-cat(paste0(cal_Anions$Instrument,
+           ana_Anions$Cal_Curves$Cal_Type[which(ana_Anions$Cal_Curves$Name == ion)]," \n"))
+cat(paste0(ana_Anions$Instrument,
            ", ",
-           paste0(cal_Anions$Ion_Type," ",cal_Anions$Number),
+           paste0(ana_Anions$Ion_Type," ",ana_Anions$Number),
            ", ", 
-           cal_Anions$Date," \n"))
+           ana_Anions$Date," \n"))
 cat(anion_regressions[[which(anion_ion_sp == ion)]]," \n")
 cat(paste0("R\u00B2 = ", round(summary(analyte_reg)$r.squared,5)," \n"))
 # plots
@@ -320,20 +315,20 @@ print(anion_plots_res_pct[[which(anion_ion_sp == ion)]])
 ## ion
 ion = "Bromide"
 ## Data etc
-analyte_reg <- get_cal_regression(cal_Anions, ion)
-analyte_data_nowgt <- cal_Anions$Data %>%
+analyte_reg <- get_cal_regression(ana_Anions, ion)
+analyte_data_nowgt <- ana_Anions$Data %>%
   select(Injection_Number,Level, contains(ion)) %>%
   mutate(across(everything(), ~as.numeric(.))) %>% 
   'colnames<-'(c(colnames(.)[c(1,2)], "Amount","Area"))#,"Weight"))
 ## Text
 cat(paste0("--------------------------------------", " \n"))
 cat(paste0(ion,", valid n = ",length(which(!is.na(analyte_data_nowgt$Area))), ", ",
-           cal_Anions$Cal_Curves$Cal_Type[which(cal_Anions$Cal_Curves$Name == ion)]," \n"))
-cat(paste0(cal_Anions$Instrument,
+           ana_Anions$Cal_Curves$Cal_Type[which(ana_Anions$Cal_Curves$Name == ion)]," \n"))
+cat(paste0(ana_Anions$Instrument,
            ", ",
-           paste0(cal_Anions$Ion_Type," ",cal_Anions$Number),
+           paste0(ana_Anions$Ion_Type," ",ana_Anions$Number),
            ", ", 
-           cal_Anions$Date," \n"))
+           ana_Anions$Date," \n"))
 cat(anion_regressions[[which(anion_ion_sp == ion)]]," \n")
 cat(paste0("R\u00B2 = ", round(summary(analyte_reg)$r.squared,5)," \n"))
 # plots
@@ -348,20 +343,20 @@ print(anion_plots_res_pct[[which(anion_ion_sp == ion)]])
 ## ion
 ion = "Nitrate"
 ## Data etc
-analyte_reg <- get_cal_regression(cal_Anions, ion)
-analyte_data_nowgt <- cal_Anions$Data %>%
+analyte_reg <- get_cal_regression(ana_Anions, ion)
+analyte_data_nowgt <- ana_Anions$Data %>%
   select(Injection_Number,Level, contains(ion)) %>%
   mutate(across(everything(), ~as.numeric(.))) %>% 
   'colnames<-'(c(colnames(.)[c(1,2)], "Amount","Area"))#,"Weight"))
 ## Text
 cat(paste0("--------------------------------------", " \n"))
 cat(paste0(ion,", valid n = ",length(which(!is.na(analyte_data_nowgt$Area))), ", ",
-           cal_Anions$Cal_Curves$Cal_Type[which(cal_Anions$Cal_Curves$Name == ion)]," \n"))
-cat(paste0(cal_Anions$Instrument,
+           ana_Anions$Cal_Curves$Cal_Type[which(ana_Anions$Cal_Curves$Name == ion)]," \n"))
+cat(paste0(ana_Anions$Instrument,
            ", ",
-           paste0(cal_Anions$Ion_Type," ",cal_Anions$Number),
+           paste0(ana_Anions$Ion_Type," ",ana_Anions$Number),
            ", ", 
-           cal_Anions$Date," \n"))
+           ana_Anions$Date," \n"))
 cat(anion_regressions[[which(anion_ion_sp == ion)]]," \n")
 cat(paste0("R\u00B2 = ", round(summary(analyte_reg)$r.squared,5)," \n"))
 # plots
@@ -376,20 +371,20 @@ print(anion_plots_res_pct[[which(anion_ion_sp == ion)]])
 ## ion
 ion = "Sulphate"
 ## Data etc
-analyte_reg <- get_cal_regression(cal_Anions, ion)
-analyte_data_nowgt <- cal_Anions$Data %>%
+analyte_reg <- get_cal_regression(ana_Anions, ion)
+analyte_data_nowgt <- ana_Anions$Data %>%
   select(Injection_Number,Level, contains(ion)) %>%
   mutate(across(everything(), ~as.numeric(.))) %>% 
   'colnames<-'(c(colnames(.)[c(1,2)], "Amount","Area"))#,"Weight"))
 ## Text
 cat(paste0("--------------------------------------", " \n"))
 cat(paste0(ion,", valid n = ",length(which(!is.na(analyte_data_nowgt$Area))), ", ",
-           cal_Anions$Cal_Curves$Cal_Type[which(cal_Anions$Cal_Curves$Name == ion)]," \n"))
-cat(paste0(cal_Anions$Instrument,
+           ana_Anions$Cal_Curves$Cal_Type[which(ana_Anions$Cal_Curves$Name == ion)]," \n"))
+cat(paste0(ana_Anions$Instrument,
            ", ",
-           paste0(cal_Anions$Ion_Type," ",cal_Anions$Number),
+           paste0(ana_Anions$Ion_Type," ",ana_Anions$Number),
            ", ", 
-           cal_Anions$Date," \n"))
+           ana_Anions$Date," \n"))
 cat(anion_regressions[[which(anion_ion_sp == ion)]]," \n")
 cat(paste0("R\u00B2 = ", round(summary(analyte_reg)$r.squared,5)," \n"))
 # plots
@@ -404,20 +399,20 @@ print(anion_plots_res_pct[[which(anion_ion_sp == ion)]])
 ## ion
 ion = "Phosphate"
 ## Data etc
-analyte_reg <- get_cal_regression(cal_Anions, ion)
-analyte_data_nowgt <- cal_Anions$Data %>%
+analyte_reg <- get_cal_regression(ana_Anions, ion)
+analyte_data_nowgt <- ana_Anions$Data %>%
   select(Injection_Number,Level, contains(ion)) %>%
   mutate(across(everything(), ~as.numeric(.))) %>% 
   'colnames<-'(c(colnames(.)[c(1,2)], "Amount","Area"))#,"Weight"))
 ## Text
 cat(paste0("--------------------------------------", "    \n"))
 cat(paste0(ion,", valid n = ",length(which(!is.na(analyte_data_nowgt$Area))), ", ",
-           cal_Anions$Cal_Curves$Cal_Type[which(cal_Anions$Cal_Curves$Name == ion)],"    \n"))
-cat(paste0(cal_Anions$Instrument,
+           ana_Anions$Cal_Curves$Cal_Type[which(ana_Anions$Cal_Curves$Name == ion)],"    \n"))
+cat(paste0(ana_Anions$Instrument,
            ", ",
-           paste0(cal_Anions$Ion_Type," ",cal_Anions$Number),
+           paste0(ana_Anions$Ion_Type," ",ana_Anions$Number),
            ", ", 
-           cal_Anions$Date,"   \n"))
+           ana_Anions$Date,"   \n"))
 cat(anion_regressions[[which(anion_ion_sp == ion)]],"    \n")
 cat(paste0("R\u00B2 = ", round(summary(analyte_reg)$r.squared,5),"    \n"))
 # plots
@@ -434,20 +429,20 @@ print(anion_plots_res_pct[[which(anion_ion_sp == ion)]])
 ## ion
 ion = "Lithium"
 ## Data etc
-analyte_reg <- get_cal_regression(cal_Cations, ion)
-analyte_data_nowgt <- cal_Cations$Data %>%
+analyte_reg <- get_cal_regression(ana_Cations, ion)
+analyte_data_nowgt <- ana_Cations$Data %>%
   select(Injection_Number,Level, contains(ion)) %>%
   mutate(across(everything(), ~as.numeric(.))) %>% 
   'colnames<-'(c(colnames(.)[c(1,2)], "Amount","Area"))#,"Weight"))
 ## Text
 cat(paste0("--------------------------------------", " \n"))
 cat(paste0(ion,", valid n = ",length(which(!is.na(analyte_data_nowgt$Area))), ", ",
-           cal_Cations$Cal_Curves$Cal_Type[which(cal_Cations$Cal_Curves$Name == ion)]," \n"))
-cat(paste0(cal_Cations$Instrument,
+           ana_Cations$Cal_Curves$Cal_Type[which(ana_Cations$Cal_Curves$Name == ion)]," \n"))
+cat(paste0(ana_Cations$Instrument,
            ", ",
-           paste0(cal_Cations$Ion_Type," ",cal_Cations$Number),
+           paste0(ana_Cations$Ion_Type," ",ana_Cations$Number),
            ", ", 
-           cal_Cations$Date," \n"))
+           ana_Cations$Date," \n"))
 cat(cation_regressions[[which(cation_ion_sp == ion)]]," \n")
 cat(paste0("R\u00B2 = ", round(summary(analyte_reg)$r.squared,5)," \n"))
 # plots
@@ -462,20 +457,20 @@ print(cation_plots_res_pct[[which(cation_ion_sp == ion)]])
 ## ion
 ion = "Sodium"
 ## Data etc
-analyte_reg <- get_cal_regression(cal_Cations, ion)
-analyte_data_nowgt <- cal_Cations$Data %>%
+analyte_reg <- get_cal_regression(ana_Cations, ion)
+analyte_data_nowgt <- ana_Cations$Data %>%
   select(Injection_Number,Level, contains(ion)) %>%
   mutate(across(everything(), ~as.numeric(.))) %>% 
   'colnames<-'(c(colnames(.)[c(1,2)], "Amount","Area"))#,"Weight"))
 ## Text
 cat(paste0("--------------------------------------", " \n"))
 cat(paste0(ion,", valid n = ",length(which(!is.na(analyte_data_nowgt$Area))), ", ",
-           cal_Cations$Cal_Curves$Cal_Type[which(cal_Cations$Cal_Curves$Name == ion)]," \n"))
-cat(paste0(cal_Cations$Instrument,
+           ana_Cations$Cal_Curves$Cal_Type[which(ana_Cations$Cal_Curves$Name == ion)]," \n"))
+cat(paste0(ana_Cations$Instrument,
            ", ",
-           paste0(cal_Cations$Ion_Type," ",cal_Cations$Number),
+           paste0(ana_Cations$Ion_Type," ",ana_Cations$Number),
            ", ", 
-           cal_Cations$Date," \n"))
+           ana_Cations$Date," \n"))
 cat(cation_regressions[[which(cation_ion_sp == ion)]]," \n")
 cat(paste0("R\u00B2 = ", round(summary(analyte_reg)$r.squared,5)," \n"))
 # plots
@@ -490,20 +485,20 @@ print(cation_plots_res_pct[[which(cation_ion_sp == ion)]])
 ## ion
 ion = "Ammonium"
 ## Data etc
-analyte_reg <- get_cal_regression(cal_Cations, ion)
-analyte_data_nowgt <- cal_Cations$Data %>%
+analyte_reg <- get_cal_regression(ana_Cations, ion)
+analyte_data_nowgt <- ana_Cations$Data %>%
   select(Injection_Number,Level, contains(ion)) %>%
   mutate(across(everything(), ~as.numeric(.))) %>% 
   'colnames<-'(c(colnames(.)[c(1,2)], "Amount","Area"))#,"Weight"))
 ## Text
 cat(paste0("--------------------------------------", " \n"))
 cat(paste0(ion,", valid n = ",length(which(!is.na(analyte_data_nowgt$Area))), ", ",
-           cal_Cations$Cal_Curves$Cal_Type[which(cal_Cations$Cal_Curves$Name == ion)]," \n"))
-cat(paste0(cal_Cations$Instrument,
+           ana_Cations$Cal_Curves$Cal_Type[which(ana_Cations$Cal_Curves$Name == ion)]," \n"))
+cat(paste0(ana_Cations$Instrument,
            ", ",
-           paste0(cal_Cations$Ion_Type," ",cal_Cations$Number),
+           paste0(ana_Cations$Ion_Type," ",ana_Cations$Number),
            ", ", 
-           cal_Cations$Date," \n"))
+           ana_Cations$Date," \n"))
 cat(cation_regressions[[which(cation_ion_sp == ion)]]," \n")
 cat(paste0("R\u00B2 = ", round(summary(analyte_reg)$r.squared,5)," \n"))
 # plots
@@ -518,20 +513,20 @@ print(cation_plots_res_pct[[which(cation_ion_sp == ion)]])
 ## ion
 ion = "Potassium"
 ## Data etc
-analyte_reg <- get_cal_regression(cal_Cations, ion)
-analyte_data_nowgt <- cal_Cations$Data %>%
+analyte_reg <- get_cal_regression(ana_Cations, ion)
+analyte_data_nowgt <- ana_Cations$Data %>%
   select(Injection_Number,Level, contains(ion)) %>%
   mutate(across(everything(), ~as.numeric(.))) %>% 
   'colnames<-'(c(colnames(.)[c(1,2)], "Amount","Area"))#,"Weight"))
 ## Text
 cat(paste0("--------------------------------------", " \n"))
 cat(paste0(ion,", valid n = ",length(which(!is.na(analyte_data_nowgt$Area))), ", ",
-           cal_Cations$Cal_Curves$Cal_Type[which(cal_Cations$Cal_Curves$Name == ion)]," \n"))
-cat(paste0(cal_Cations$Instrument,
+           ana_Cations$Cal_Curves$Cal_Type[which(ana_Cations$Cal_Curves$Name == ion)]," \n"))
+cat(paste0(ana_Cations$Instrument,
            ", ",
-           paste0(cal_Cations$Ion_Type," ",cal_Cations$Number),
+           paste0(ana_Cations$Ion_Type," ",ana_Cations$Number),
            ", ", 
-           cal_Cations$Date," \n"))
+           ana_Cations$Date," \n"))
 cat(cation_regressions[[which(cation_ion_sp == ion)]]," \n")
 cat(paste0("R\u00B2 = ", round(summary(analyte_reg)$r.squared,5)," \n"))
 # plots
@@ -546,20 +541,20 @@ print(cation_plots_res_pct[[which(cation_ion_sp == ion)]])
 ## ion
 ion = "Magnesium"
 ## Data etc
-analyte_reg <- get_cal_regression(cal_Cations, ion)
-analyte_data_nowgt <- cal_Cations$Data %>%
+analyte_reg <- get_cal_regression(ana_Cations, ion)
+analyte_data_nowgt <- ana_Cations$Data %>%
   select(Injection_Number,Level, contains(ion)) %>%
   mutate(across(everything(), ~as.numeric(.))) %>% 
   'colnames<-'(c(colnames(.)[c(1,2)], "Amount","Area"))#,"Weight"))
 ## Text
 cat(paste0("--------------------------------------", " \n"))
 cat(paste0(ion,", valid n = ",length(which(!is.na(analyte_data_nowgt$Area))), ", ",
-           cal_Cations$Cal_Curves$Cal_Type[which(cal_Cations$Cal_Curves$Name == ion)]," \n"))
-cat(paste0(cal_Cations$Instrument,
+           ana_Cations$Cal_Curves$Cal_Type[which(ana_Cations$Cal_Curves$Name == ion)]," \n"))
+cat(paste0(ana_Cations$Instrument,
            ", ",
-           paste0(cal_Cations$Ion_Type," ",cal_Cations$Number),
+           paste0(ana_Cations$Ion_Type," ",ana_Cations$Number),
            ", ", 
-           cal_Cations$Date," \n"))
+           ana_Cations$Date," \n"))
 cat(cation_regressions[[which(cation_ion_sp == ion)]]," \n")
 cat(paste0("R\u00B2 = ", round(summary(analyte_reg)$r.squared,5)," \n"))
 # plots
@@ -574,20 +569,20 @@ print(cation_plots_res_pct[[which(cation_ion_sp == ion)]])
 ## ion
 ion = "Calcium"
 ## Data etc
-analyte_reg <- get_cal_regression(cal_Cations, ion)
-analyte_data_nowgt <- cal_Cations$Data %>%
+analyte_reg <- get_cal_regression(ana_Cations, ion)
+analyte_data_nowgt <- ana_Cations$Data %>%
   select(Injection_Number,Level, contains(ion)) %>%
   mutate(across(everything(), ~as.numeric(.))) %>% 
   'colnames<-'(c(colnames(.)[c(1,2)], "Amount","Area"))#,"Weight"))
 ## Text
 cat(paste0("--------------------------------------", " \n"))
 cat(paste0(ion,", valid n = ",length(which(!is.na(analyte_data_nowgt$Area))), ", ",
-           cal_Cations$Cal_Curves$Cal_Type[which(cal_Cations$Cal_Curves$Name == ion)]," \n"))
-cat(paste0(cal_Cations$Instrument,
+           ana_Cations$Cal_Curves$Cal_Type[which(ana_Cations$Cal_Curves$Name == ion)]," \n"))
+cat(paste0(ana_Cations$Instrument,
            ", ",
-           paste0(cal_Cations$Ion_Type," ",cal_Cations$Number),
+           paste0(ana_Cations$Ion_Type," ",ana_Cations$Number),
            ", ", 
-           cal_Cations$Date," \n"))
+           ana_Cations$Date," \n"))
 cat(cation_regressions[[which(cation_ion_sp == ion)]]," \n")
 cat(paste0("R\u00B2 = ", round(summary(analyte_reg)$r.squared,5)," \n"))
 # plots
