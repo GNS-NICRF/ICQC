@@ -29,13 +29,13 @@ plot_waters_analyte <- function(analyte_sequence,
                                  point_colour = 'black'){
   ## test vars
   #
-  analyte_sequence <-  parse_sequence(list.files(data_dir_raw_3, full.names = T)[2],
-                                     ion_type = "Anion",
-                                     verbose = FALSE,
-                                     matching_cal_dir = data_dir)
-  analyte_name <- "Nitrite"
-  axlim_offset_pct = 1
-  point_colour = ion_clrs[which(names(ion_clrs) == analyte_name)]
+  # analyte_sequence <-  parse_sequence(list.files(data_dir_raw_3, full.names = T)[2],
+  #                                    ion_type = "Anion",
+  #                                    verbose = FALSE,
+  #                                    matching_cal_dir = data_dir)
+  # analyte_name <- "Nitrite"
+  # axlim_offset_pct = 1
+  # point_colour = ion_clrs[which(names(ion_clrs) == analyte_name)]
   # Input checks
   if(!is.character(analyte_name)){
     stop("param analyte_name must be a character.")
