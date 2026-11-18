@@ -28,6 +28,8 @@ calib_info_forYAML <- function(filename){
 #'
 #' @return A character string
 #'
+#' @importFrom stringr str_extract
+#'
 #' @noRd
 #'
 ana_info_forYAML <- function(filename){
