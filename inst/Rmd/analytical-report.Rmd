@@ -4,7 +4,7 @@ params:
   cal_dir: !r system.file("data-raw/test-data-2026-07-24/", package = "ICQC")
   unts: !r as.character("sec")
 title: "ICF IC Analytical Report (v1)"
-author: "`r ana_make_info_YAML(params$ana_target`"
+author: "`r ana_make_info_YAML(params$ana_target)`"
 date: "Generated `r round(Sys.time(), units = params$unts)` by `r Sys.info()[['user']]` (`r Sys.info()[['nodename']]`)"
 output: 
   pdf_document:
