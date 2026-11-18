@@ -169,7 +169,7 @@ cat("To come: various summary statistics and plots of overall run performance.")
 
 ### Fluoride
 
-```{r Anions-Fluoride, warning = FALSE, echo = FALSE, message = FALSE, fig.align='left', dpi = 300, fig.width = 7, fig.height = 7 * 6/12}
+```{r Anions-Fluoride, warning = FALSE, echo = FALSE, message = FALSE, dpi = 300, fig.width = 7, fig.height = 7 * 6/12}
 ## ion
 ion = "Fluoride"
 ## Data etc
@@ -198,7 +198,7 @@ print(anion_plots_waters[[which(anion_ion_sp == ion)]])
 
 ### MSA
 
-```{r Anions-MSA, warning = FALSE, echo = FALSE, message = FALSE, fig.align='left', dpi = 300, fig.width = 7, fig.height = 7 * 6/12}
+```{r Anions-MSA, warning = FALSE, echo = FALSE, message = FALSE, dpi = 300, fig.width = 7, fig.height = 7 * 6/12}
 ## ion
 ion = "MSA"
 ## Data etc
@@ -227,7 +227,7 @@ print(anion_plots_waters[[which(anion_ion_sp == ion)]])
 
 ### Chloride
 
-```{r Anions-Chloride, warning = FALSE, echo = FALSE, message = FALSE, fig.align='left', dpi = 300, fig.width = 7, fig.height = 7 * 6/12}
+```{r Anions-Chloride, warning = FALSE, echo = FALSE, message = FALSE, dpi = 300, fig.width = 7, fig.height = 7 * 6/12}
 ## ion
 ion = "Chloride"
 ## Data etc
@@ -256,7 +256,7 @@ print(anion_plots_waters[[which(anion_ion_sp == ion)]])
 
 ### Nitrite
 
-```{r Anions-Nitrite, warning = FALSE, echo = FALSE, message = FALSE, fig.align='left', dpi = 300, fig.width = 7, fig.height = 7 * 6/12}
+```{r Anions-Nitrite, warning = FALSE, echo = FALSE, message = FALSE, dpi = 300, fig.width = 7, fig.height = 7 * 6/12}
 ## ion
 ion = "Nitrite"
 ## Data etc
@@ -285,7 +285,7 @@ print(anion_plots_waters[[which(anion_ion_sp == ion)]])
 
 ### Bromide 
 
-```{r Anions-Bromide, warning = FALSE, echo = FALSE, message = FALSE, fig.align='left', dpi = 300, fig.width = 7, fig.height = 7 * 6/12}
+```{r Anions-Bromide, warning = FALSE, echo = FALSE, message = FALSE, dpi = 300, fig.width = 7, fig.height = 7 * 6/12}
 ## ion
 ion = "Bromide"
 ## Data etc
@@ -314,7 +314,7 @@ print(anion_plots_waters[[which(anion_ion_sp == ion)]])
 
 ### Nitrate
 
-```{r Anions-Nitrate, warning = FALSE, echo = FALSE, message = FALSE, fig.align='left', dpi = 300, fig.width = 7, fig.height = 7 * 6/12}
+```{r Anions-Nitrate, warning = FALSE, echo = FALSE, message = FALSE, dpi = 300, fig.width = 7, fig.height = 7 * 6/12}
 ## ion
 ion = "Nitrate"
 ## Data etc
@@ -343,7 +343,7 @@ print(anion_plots_waters[[which(anion_ion_sp == ion)]])
 
 ### Sulphate
 
-```{r Anions-Sulphate, warning = FALSE, echo = FALSE, message = FALSE, fig.align='left', dpi = 300, fig.width = 7, fig.height = 7 * 6/12}
+```{r Anions-Sulphate, warning = FALSE, echo = FALSE, message = FALSE, dpi = 300, fig.width = 7, fig.height = 7 * 6/12}
 ## ion
 ion = "Sulphate"
 ## Data etc
@@ -372,7 +372,7 @@ print(anion_plots_waters[[which(anion_ion_sp == ion)]])
 
 ### Phosphate
 
-```{r Anions-Phosphate, warning = FALSE, echo = FALSE, message = FALSE, fig.align='left', dpi = 300, fig.width = 7, fig.height = 7 * 6/12}
+```{r Anions-Phosphate, warning = FALSE, echo = FALSE, message = FALSE, dpi = 300, fig.width = 7, fig.height = 7 * 6/12}
 ## ion
 ion = "Phosphate"
 ## Data etc
@@ -403,7 +403,7 @@ print(anion_plots_waters[[which(anion_ion_sp == ion)]])
 
 ### Lithium
 
-```{r Cations-Lithium, warning = FALSE, echo = FALSE, message = FALSE, fig.align='left', dpi = 300, fig.width = 7, fig.height = 7 * 6/12}
+```{r Cations-Lithium, warning = FALSE, echo = FALSE, message = FALSE, dpi = 300, fig.width = 7, fig.height = 7 * 6/12}
 ## ion
 ion = "Lithium"
 ## Data etc
@@ -432,7 +432,7 @@ print(cation_plots_waters[[which(cation_ion_sp == ion)]])
 
 ### Sodium
 
-```{r Cations-Sodium, warning = FALSE, echo = FALSE, message = FALSE, fig.align='left', dpi = 300, fig.width = 7, fig.height = 7 * 6/12}
+```{r Cations-Sodium, warning = FALSE, echo = FALSE, message = FALSE, dpi = 300, fig.width = 7, fig.height = 7 * 6/12}
 ## ion
 ion = "Sodium"
 ## Data etc
@@ -461,7 +461,7 @@ print(cation_plots_waters[[which(cation_ion_sp == ion)]])
 
 ### Ammonium
 
-```{r Cations-Ammonium, warning = FALSE, echo = FALSE, message = FALSE, fig.align='left', dpi = 300, fig.width = 7, fig.height = 7 * 6/12}
+```{r Cations-Ammonium, warning = FALSE, echo = FALSE, message = FALSE, dpi = 300, fig.width = 7, fig.height = 7 * 6/12}
 ## ion
 ion = "Ammonium"
 ## Data etc
@@ -490,7 +490,7 @@ print(cation_plots_waters[[which(cation_ion_sp == ion)]])
 
 ### Potassium
 
-```{r Cations-Potassium, warning = FALSE, echo = FALSE, message = FALSE, fig.align='left', dpi = 300, fig.width = 7, fig.height = 7 * 6/12}
+```{r Cations-Potassium, warning = FALSE, echo = FALSE, message = FALSE, dpi = 300, fig.width = 7, fig.height = 7 * 6/12}
 ## ion
 ion = "Potassium"
 ## Data etc
@@ -519,7 +519,7 @@ print(cation_plots_waters[[which(cation_ion_sp == ion)]])
 
 ### Magnesium
 
-```{r Cations-Magnesium, warning = FALSE, echo = FALSE, message = FALSE, fig.align='left', dpi = 300, fig.width = 7, fig.height = 7 * 6/12}
+```{r Cations-Magnesium, warning = FALSE, echo = FALSE, message = FALSE, dpi = 300, fig.width = 7, fig.height = 7 * 6/12}
 ## ion
 ion = "Magnesium"
 ## Data etc
@@ -548,7 +548,7 @@ print(cation_plots_waters[[which(cation_ion_sp == ion)]])
 
 ### Calcium
  
-```{r Cations-Calcium, warning = FALSE, echo = FALSE, message = FALSE, fig.align='left', dpi = 300, fig.width = 7, fig.height = 7 * 6/12}
+```{r Cations-Calcium, warning = FALSE, echo = FALSE, message = FALSE, dpi = 300, fig.width = 7, fig.height = 7 * 6/12}
 ## ion
 ion = "Calcium"
 ## Data etc
