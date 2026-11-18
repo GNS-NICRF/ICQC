@@ -38,7 +38,7 @@ knitr::opts_knit$set(echo = FALSE,
                     fig.align="center", 
                     fig.pos = "H", 
                     out.extra = "",
-                    comment = "",
+                    comment = NA,
                     base.dir = ".")
 
 # knitr::opts_knit$set(
