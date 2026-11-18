@@ -38,7 +38,7 @@ ana_info_forYAML <- function(filename){
   core <-  paste(file_splits[seq(grep("BLIZ",file_splits)+2,which(!is.na(str_extract(file_splits, "\\d+")))[2]-1,1)], collapse = "_")
   samples <- paste(file_splits[which(!is.na(str_extract(file_splits, "\\d+")))[2]],"-",file_splits[which(!is.na(str_extract(file_splits, "\\d+")))[3]])
   gen_id <- str_remove(paste(file_splits[seq(which(!is.na(str_extract(file_splits, "\\d+")))[4],length(file_splits),1)],collapse = "_"), "_xls")
-  ret_label = paste0(date," ",instrument,", ",core," ",samples,"\n, chromeleon export ",gen_id)
+  ret_label = paste0(date," ",instrument,", ",core," ",samples,", chromeleon export ",gen_id)
   ret_label
 }
 

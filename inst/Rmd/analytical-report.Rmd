@@ -1,10 +1,10 @@
 ---
 params: 
   ana_target: !r system.file("data-raw/test-data-2026-11-04/20261027_BLIZZARD_NORTH_RICE_IC_DEEP_1737_1824_16_Nov_2026 08_58.xls", package = "ICQC")
-  cal_dir: !r system.file("data-raw/test-data-2026-11-04/", package = "ICQC")
+  cal_dir: !r system.file("data-raw/test-data-2026-07-24/", package = "ICQC")
   unts: !r as.character("sec")
 title: "ICF IC Analytical Report (v1)"
-author: "`r ana_info_forYAML(params$target)`"
+author: "`r ana_info_forYAML(params$ana_target)`"
 date: "Generated `r round(Sys.time(), units = params$unts)` by `r Sys.info()[['user']]` (`r Sys.info()[['nodename']]`)"
 output: 
   pdf_document:
@@ -30,7 +30,8 @@ if(!require("pacman", character.only = TRUE)){install.packages("pacman")}
 
 # Load pacman and then p_load (install if needed) other dependencies.
 pacman::p_load(rmarkdown,knitr,ggtext,tinytex, stringi, stringr,
-               tidyverse, openxlsx, here, cowplot, ggpmisc, rlist, readxl)
+               tidyverse, openxlsx, here, cowplot, ggpmisc, rlist, readxl,
+               ggrepel, ggtext, ggplot2)
 
 # Set chunk options, including centered figures and echo on by default.
 knitr::opts_chunk$set(echo = FALSE, 

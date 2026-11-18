@@ -21,6 +21,7 @@
 #' @importFrom cowplot plot_grid
 #' @importFrom cowplot ggdraw
 #' @importFrom ggtext geom_richtext
+#' @importFrom ggrepel geom_text_repel
 #'
 #' @export
 #'
