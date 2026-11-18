@@ -4,21 +4,22 @@
 \alias{parse_sequence}
 \title{Parse a sequence excel file.}
 \usage{
-parse_sequence(filepath, ion_type, verbose = TRUE)
+parse_sequence(filepath, ion_type, verbose = TRUE, matching_cal_dir = NULL)
 }
 \arguments{
 \item{filepath}{The full filepath to a sequence .xls file}
 
 \item{ion_type}{One of either 'Anion' or 'Cation'.}
 
-\item{verbose}{TRUE/FALSE to print status messages.
-#'}
+\item{verbose}{TRUE/FALSE to print status messages.}
+
+\item{matching_cal_dir}{NULL or full path to directory containing calibration files in which to search for one matching the QCs in a target sample sequence. Only needed if the target sequence to parse is a sample/analytical sequence.}
 }
 \value{
 A list containing sequence information and data.
 }
 \description{
-Read in and parse a sequence excel file into a nested list of its 
+Read in and parse a sequence excel file into a nested list of its
 components. The sequence type (Calibration or sample run) is detected automatically
 based on the filename. Ion type (Anion or Cation) must be specified.
 
@@ -27,7 +28,7 @@ Ref2
 \examples{
 ## Code examples here
 sequence <- parse_sequence(filepath = "Drive:/full/path/to/file.xls", ion_type = "Anion")
-                           
+
 }
 \author{
 Matt Harris
