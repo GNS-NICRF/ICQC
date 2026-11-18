@@ -42,10 +42,10 @@ knitr::opts_chunk$set(echo = FALSE,
                       fig.align = "center",
                       fig.pos = "H",
                       comment = NA)
-
-print(knitr::opts_knit$get("base.dir"))
-print(knitr::opts_knit$get("root.dir"))
-print(knitr::opts_chunk$get("fig.path"))
+# 
+# print(knitr::opts_knit$get("base.dir"))
+# print(knitr::opts_knit$get("root.dir"))
+# print(knitr::opts_chunk$get("fig.path"))
 
 # knitr::opts_knit$set(
 #   base.dir = "."
