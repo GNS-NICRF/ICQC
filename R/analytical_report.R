@@ -13,7 +13,7 @@
 #' @author Matt Harris
 #'
 #' @examples
-#' calibration_report(list.files(directory, full.names = TRUE)[1], output_folder = "path/to/output/folder/")
+#' analytical_report(list.files(directory, full.names = TRUE)[1], output_folder = "path/to/output/folder/")
 #'
 #' @importFrom rmarkdown render
 #' @importFrom here here
@@ -22,6 +22,7 @@
 #'
 analytical_report <- function(filepath,
                                output_folder,
+                               cal_dir,
                                report_filename = NULL){
   ## test vars
   # filepath = cal_target
@@ -31,10 +32,10 @@ analytical_report <- function(filepath,
   # report_rmd <- system.file("rmd", "calibration-report.Rmd", package = "ICQC")
   # report_rmd <- paste0(here::here(),"/report-templates/calibration-report.Rmd")
   # Check whether this is the package form and if not try the inst dir in the current wd.
-  if(nchar(system.file("rmd", "calibration-report.Rmd", package = "ICQC")) == 0){
-    report_rmd <- paste0(here(),"/inst/Rmd/calibration-report.Rmd")
+  if(nchar(system.file("rmd", "analytical-report.Rmd", package = "ICQC")) == 0){
+    report_rmd <- paste0(here(),"/inst/Rmd/analytical-report.Rmd")
   } else {
-    report_rmd <- system.file("rmd", "calibration-report.Rmd", package = "ICQC")
+    report_rmd <- system.file("rmd", "analytical-report.Rmd", package = "ICQC")
   }
   ## Generate filename
   if(is.null(report_filename)){
@@ -43,6 +44,8 @@ analytical_report <- function(filepath,
   render(input = report_rmd,
          output_file = report_filename,
          output_dir = output_folder,
-         params = list(cal_target = filepath, unts = "sec"),
+         params = list(ana_target = filepath,
+                       cal_dir = cal_dir,
+                       unts = "sec"),
          envir = new.env())
 }

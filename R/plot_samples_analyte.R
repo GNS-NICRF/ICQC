@@ -20,6 +20,7 @@
 #' @importFrom cowplot plot_grid
 #' @importFrom cowplot ggdraw
 #' @importFrom ggtext geom_richtext
+#' @importFrom forcats fct_inorder
 #'
 #' @export
 #'
@@ -30,10 +31,10 @@ plot_samples_analyte <- function(analyte_sequence,
   ## test vars
   #
   # analyte_sequence <-  parse_sequence(list.files(data_dir_raw_3, full.names = T)[1],
-  #                                    ion_type = "Anion",
+  #                                    ion_type = "Cation",
   #                                    verbose = FALSE,
   #                                    matching_cal_dir = data_dir)
-  # analyte_name <- "Nitrate"
+  # analyte_name <- "Lithium"
   # axlim_offset_pct = 1
   # point_colour = ion_clrs[which(names(ion_clrs) == analyte_name)]
   # Input checks
@@ -79,26 +80,35 @@ plot_samples_analyte <- function(analyte_sequence,
   # textsizes
   tsize <- theme_constants()
   # Plot
-  data_plot <-  ggplot() +
-    geom_vline(xintercept = seq(0,round(nrow(data_sp), digits = -1), 10), linetype = 'dashed',
-               colour = 'grey60', alpha = 0.6) +
-    geom_step(data = data_sp, aes(x = row_number - 0.5, y = Amount)) +
-    geom_point(data = data_sp, aes(x = row_number, y = Amount),
-               shape = 21, colour = 'black', fill = point_colour) +
-    scale_x_continuous(expand = c(0,0),
-                       limits = c(0,nrow(data_sp)+1),
-                       breaks = seq(0,round(nrow(data_sp), digits = -1), 10),
-                       labels = c('Start',data_sp$sample_number[seq(0,round(nrow(data_sp), digits = -1), 10)])) +
-    scale_y_continuous(expand = c(0,0),
-                       limits = c(0,max(data_sp$Amount, na.rm = T)*1.05)) + # manual 5% pad
-    theme_resplot(font_size = tsize$textsize_pdf) +
-    labs(y = paste0(analyte_name," (ppb)"), x = "Sample #") +
-    theme(legend.title = element_blank())
-  if(nrow(dummy_triangles) != 0){
+  # if(all(is.na(data_sp$Amount)) & all(is.na(data_sp$Area))){
+    data_plot <-  ggplot() +
+      geom_vline(xintercept = seq(0,round(nrow(data_sp), digits = -1), 10), linetype = 'dashed',
+                 colour = 'grey60', alpha = 0.6) +
+      geom_step(data = data_sp, aes(x = row_number - 0.5, y = Amount)) +
+      geom_point(data = data_sp, aes(x = row_number, y = Amount),
+                 shape = 21, colour = 'black', fill = point_colour) +
+      scale_x_continuous(expand = c(0,0),
+                         limits = c(0,nrow(data_sp)+1),
+                         breaks = seq(0,round(nrow(data_sp), digits = -1), 10),
+                         labels = c('Start',data_sp$sample_number[seq(0,round(nrow(data_sp), digits = -1), 10)])) +
+      scale_y_continuous(expand = c(0,0),
+                         limits = c(0,ifelse(all(is.na(data_sp$Amount)) & all(is.na(data_sp$Area)),
+                                             yes = 1,
+                                             no = max(data_sp$Amount, na.rm = T)*1.05))) + # manual 5% pad
+      theme_resplot(font_size = tsize$textsize_pdf) +
+      labs(y = paste0(analyte_name," (ppb)"), x = "Sample #") +
+      theme(legend.title = element_blank())
+  # }
+  if(all(is.na(data_sp$Amount)) & all(is.na(data_sp$Area))){
+    data_plot <- data_plot +
+      annotate(geom = "text", x = 1 + ((max(data_sp$row_number) - 1)/100) * 50, y = 0.5, label = "Analyte not detected in any unknown injections")
+  } else if(nrow(dummy_triangles) != 0){
+    colormap <- setNames(dummy_triangles$colours, dummy_triangles$missing_type)
+    labelmap <- setNames(dummy_triangles$missing_type, dummy_triangles$missing_type)
     data_plot <- data_plot +
       # geom_vline(xintercept = dummy_triangles$x, colour = ifelse(dummy_triangles$colours == "white", yes = "black", no = dummy_triangles$colours)) +
-      geom_point(data = dummy_triangles, aes(x = x, y = y, fill = missing_type), shape = 24, colour = 'black', size = 2) +
-      scale_fill_manual(values = dummy_triangles$colours, labels = dummy_triangles$missing_type)
+      geom_point(data = dummy_triangles, aes(x = x, y = y, fill = fct_inorder(missing_type)), shape = 24, colour = 'black', size = 2) +
+      scale_fill_manual(values = colormap, labels = labelmap)
   }
   return(data_plot)
 }

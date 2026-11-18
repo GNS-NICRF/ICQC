@@ -65,7 +65,7 @@ parse_sequence <- function(filepath,
   } else {
     if(verbose){message("Parsing sample/analytical sequence")}
     # Input data list
-    data_list <- vector("list", length = 10) %>% 'names<-'(c("Instrument","Sequence_Type","Ion_Type","Core","Sample_Start","Date","DateYYYYMMDD","Export_Version","Data","Matching_Calibration"))
+    data_list <- vector("list", length = 10) %>% 'names<-'(c("Instrument","Sequence_Type","Ion_Type","Core","Sample_Range","Date","DateYYYYMMDD","Export_Version","Data","Matching_Calibration"))
     filename_bits <- unlist(strsplit(trim_path_int(filepath),"[_.]"))
     # Bits and pieces
     if(grep("BLIZ",filename_bits) != 0){
@@ -79,7 +79,7 @@ parse_sequence <- function(filepath,
     # Core is a bit tricky - this code pulls out and appends the bits between the end of the instrument string (BLIZ_NAME) and
     # the first number after the date in the filename string
     data_list$Core <- paste(filename_bits[seq(grep("BLIZ",filename_bits)+2,which(!is.na(str_extract(filename_bits, "\\d+")))[2]-1,1)], collapse = "_")
-    data_list$Sample_Start <- filename_bits[which(!is.na(str_extract(filename_bits, "\\d+")))[2]] %>% as.numeric()
+    data_list$Sample_Range <- paste(filename_bits[which(!is.na(str_extract(filename_bits, "\\d+")))[2]],"-",filename_bits[which(!is.na(str_extract(filename_bits, "\\d+")))[3]])
     # cal_list$Number <- filename_bits[grep(type,filename_bits, ignore.case = T)+1] %>% as.numeric()
     data_list$Date <- format(as.Date(filename_bits[1], "%Y%m%d"),"%d/%m/%Y")
     data_list$DateYYYYMMDD <- filename_bits[1]
