@@ -34,11 +34,16 @@ pacman::p_load(rmarkdown,knitr,ggtext,tinytex, stringi, stringr,
                ggrepel, ggtext, ggplot2)
 
 # Set chunk options, including centered figures and echo on by default.
-knitr::opts_chunk$set(echo = FALSE, 
-                      fig.align="center", 
-                      fig.pos = "H", 
-                      out.extra = "",
-                      comment = "")
+knitr::opts_knit$set(echo = FALSE, 
+                    fig.align="center", 
+                    fig.pos = "H", 
+                    out.extra = "",
+                    comment = "",
+                    base.dir = ".")
+
+# knitr::opts_knit$set(
+#   base.dir = "."
+# )
 
 # Get functions (if testing)
 # invisible(lapply(list.files(path = paste0(here(),"/R/"), full.names = T), source))
