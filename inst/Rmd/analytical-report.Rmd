@@ -38,6 +38,12 @@ knitr::opts_knit$set(fig.align="center",
                     fig.pos = "H", 
                     base.dir = ".")
 
+knitr::opts_chunk$set(echo = FALSE, 
+                      fig.align="center", 
+                      fig.pos = "H", 
+                      out.extra = "",
+                      comment = "")
+
 # knitr::opts_knit$set(
 #   base.dir = "."
 # )
