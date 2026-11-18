@@ -13,7 +13,7 @@
 #'
 #' @noRd
 #'
-ana_version_forYAML <- function(filename){
+ana_version_for_YAML <- function(filename){
   file_splits <- unlist(strsplit(trim_path_int(filename),"[_.]"))
   gen_id <- str_remove(paste(file_splits[seq(which(!is.na(str_extract(file_splits, "\\d+")))[4],length(file_splits),1)],collapse = "_"), "_xls")
   ret_label = paste0("chromeleon export ",gen_id)
