@@ -13,7 +13,7 @@
 #'
 #' @noRd
 #'
-ana_make_info_YAML <- function(filename){
+ana_combine_info_YAML <- function(filename){
   paste(
     ana_info_for_YAML(filename),
     ana_version_for_YAML(filename),

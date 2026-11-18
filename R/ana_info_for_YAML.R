@@ -13,7 +13,7 @@
 #'
 #' @noRd
 #'
-ana_info_forYAML <- function(filename){
+ana_info_for_YAML <- function(filename){
   file_splits <- unlist(strsplit(trim_path_int(filename),"[_.]"))
   # Structure should be yyyymmdd INSTR NAME: CORE NAME SAMPLE-SAMPLE
   date <- file_splits[1]
