@@ -73,11 +73,6 @@ ana_Cations <- parse_sequence(filepath = filepath, ion_type = "Cation",
 
 ```
 
-
-
-
-
-
 ```{r plot-production-anions, results = 'hide', warning = FALSE, echo = FALSE, message = FALSE}
 
 # Get ions
@@ -192,6 +187,12 @@ for(i in seq_along(cation_ion_sp)){
 
 ```
 
+\pagebreak
+
+```{r analyte-run-overview, results = 'hide', warning = FALSE, echo = FALSE, message = FALSE}
+cat("To come: various summary statistics and plot of overall run performance.")
+
+```
 
 \pagebreak
 
