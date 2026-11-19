@@ -58,12 +58,17 @@ ion_clrs <- ion_colors()
 # ana_Anions <- parse_sequence(filepath = params$target, ion_type = "Anion")
 # ana_Cations <- parse_sequence(filepath = params$target, ion_type = "Cation")
 
-# filepath <- list.files(paste0(proj_dir,"data-raw/test-data-2026-11-04/"), full.names = T)[1]
+# filepath <- list.files(paste0(proj_dir,"data-raw/test-data-2026-11-04/"), full.names = T)[2]
+filepath <- params$ana_target
 
-ana_Anions <- parse_sequence(filepath = params$ana_target, ion_type = "Anion", 
-                             matching_cal_dir = params$cal_dir)
-ana_Cations <- parse_sequence(filepath = params$ana_target, ion_type = "Cation", 
-                             matching_cal_dir = params$cal_dir)
+# caldir <- paste0(here::here(), "/data-raw/test-data-2026-07-24/")
+caldir <- params$cal_dir 
+
+
+ana_Anions <- parse_sequence(filepath = filepath, ion_type = "Anion", 
+                             matching_cal_dir = caldir)
+ana_Cations <- parse_sequence(filepath = filepath, ion_type = "Cation", 
+                             matching_cal_dir = caldir)
 
 # paste0(ana_Cations$Matching_Calibration$DateYYYYMMDD,"_",
 #        ana_Cations$Matching_Calibration$Instrument,"_",
