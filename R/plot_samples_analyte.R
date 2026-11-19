@@ -29,12 +29,12 @@ plot_samples_analyte <- function(analyte_sequence,
                                  axlim_offset_pct = 1,
                                  point_colour = 'black'){
   ## test vars
-  #
+  # ion_clrs <- ion_colors()
   # analyte_sequence <-  parse_sequence(list.files(data_dir_raw_3, full.names = T)[1],
-  #                                    ion_type = "Cation",
+  #                                    ion_type = "Anion",
   #                                    verbose = FALSE,
   #                                    matching_cal_dir = data_dir)
-  # analyte_name <- "Lithium"
+  # analyte_name <- "Nitrite"
   # axlim_offset_pct = 1
   # point_colour = ion_clrs[which(names(ion_clrs) == analyte_name)]
   # Input checks

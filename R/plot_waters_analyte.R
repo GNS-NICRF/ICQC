@@ -28,7 +28,7 @@ plot_waters_analyte <- function(analyte_sequence,
                                  axlim_offset_pct = 1,
                                  point_colour = 'black'){
   ## test vars
-  #
+  # ion_clrs <- ion_colors()
   # analyte_sequence <-  parse_sequence(list.files(data_dir_raw_3, full.names = T)[2],
   #                                    ion_type = "Anion",
   #                                    verbose = FALSE,
