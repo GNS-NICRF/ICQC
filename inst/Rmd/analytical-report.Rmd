@@ -21,7 +21,7 @@ This is an automatically generated report for the following sequence:
 
 `r trim_path_int(params$ana_target)`
 
-```{r setup, echo = FALSE, results = FALSE, message = FALSE}
+```{r setup, include = FALSE}
 
 # This chunk sets up all others. 
 # Load packages, import global data, etc.
@@ -36,36 +36,17 @@ pacman::p_load(rmarkdown,knitr,ggtext,tinytex, stringi, stringr,
 
 # Set chunk options, including centered figures and echo on by default.
 # Global options
-knitr::opts_knit$set(base.dir = ".",
-                     comment = NA)
+# knitr::opts_chunk$get()
 
-# knitr::opts_chunk$set(echo = FALSE,
-#                       fig.align = "center",
-#                       fig.pos = "H",
-#                       comment = NA)
-# 
-# print(knitr::opts_knit$get("base.dir"))
-# print(knitr::opts_knit$get("root.dir"))
-# print(knitr::opts_chunk$get("fig.path"))
+knitr::opts_knit$set(base.dir = ".")
 
-# knitr::opts_knit$set(
-#   base.dir = "."
-# )
+knitr::opts_chunk$set(echo = FALSE,
+                      fig.align = "center",
+                      fig.pos = "H",
+                      comment = NA,
+                      fig.path = "figures/plots/")
 
-# Get functions (if testing)
-# invisible(lapply(list.files(path = paste0(here(),"/R/"), full.names = T), source))
-# proj_dir <- paste0(here::here(),"/")
-
-# Report params
-# Parameterised reporting per https://bookdown.org/yihui/rmarkdown-cookbook/parameterized-reports.html
-
-# Pagebreak fn from https://stackoverflow.com/questions/25240541/how-to-add-newpage-in-rmarkdown-in-a-smart-way
-# pagebreak <- function() {
-#   if(knitr::is_latex_output())
-#     return("\\newpage")
-#   else
-#     return('<div style="page-break-before: always;" />')
-# }
+# knitr::opts_chunk$get("fig.path")
 
 # Colours
 ion_clrs <- ion_colors()
